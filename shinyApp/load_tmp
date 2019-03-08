@@ -1,0 +1,63 @@
+
+  data <- reactiveVal(list(genomic=NULL, sample=NULL))
+
+  loadDemoData2 <- reactive({
+    flog.info("loadDemoData2")
+
+    orig <- data()
+    sdata = read.csv("data/sample_data.csv")
+    rownames(sdata) <- as.character(sdata$id_full)
+
+    asv = read.table("data/raw_count.csv", row.names = 1, sep = ",", check.names = FALSE, header = TRUE)
+    rcdata = t(asv)
+
+    orig <- data()
+    orig[["sample"]] <- sdata
+    orig[["genomic"]] <- rcdata
+
+    data(orig)
+  })
+
+  loadDemoData1 <- reactive({
+    flog.info("loadDemoData1")
+  })
+
+
+  loadDemoData <- reactive({
+    flog.info("loadDemoData")
+
+    sdata <- physeqToSample(physeq)
+    rcdata <- physeqToRawCount(physeq)
+
+    orig <- data()
+    orig[["sample"]] <- sdata
+    orig[["genomic"]] <- rcdata
+
+    data(orig)
+  })
+  
+  # LOAD DEMO DATA BUTTON ----
+  ### Load the data then change to the analysis tab
+  observeEvent(input$loadDemoDataBtn, {
+
+    flog.info("loadDemoDataBtn")
+
+    show(id = "updating-content", anim = TRUE, animType = "fade")
+    loadDemoData()
+
+    hide(id = "updating-content", anim = TRUE, animType = "fade")
+    updateTabsetPanel(session, inputId = "sidebar", selected = "analysis")
+  })
+
+  # CLEAR DEMO DATA BUTTON ----
+  observeEvent(input$clearDataBtn, {
+    flog.info("clearDataBtn")
+
+    orig <- data()
+    orig[["sample"]] <- NULL
+    orig[["genomic"]] <- NULL
+
+    data(orig)
+  })
+
+  return(data)

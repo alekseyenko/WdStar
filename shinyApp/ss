@@ -1,0 +1,18 @@
+  # sampleData ----
+  sampleDataFromFile <- reactive({
+    infile = input$sampleDataFile
+    if(is.null(infile)) return(NULL)
+
+    sdata = read.csv(infile$datapath)
+    rownames(sdata) <- as.character(sdata$id_full)
+    return(sdata)
+  })
+
+  sampleData <- reactive({
+     if(is.null(values$sdata)) {
+       sampleDataFromFile()
+     } else {
+       values$sdata
+     }
+ })
+
