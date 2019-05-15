@@ -109,3 +109,16 @@ table.dataTable { color: navy; }
 
 .sidebar { background-color: #3C8DBC }
 
+#status-panel, #status-panel1 { 
+  margin-top: -20px;
+  background-color: #ccccff;
+}
+
+#status-panel h1, #status-panel h3 { 
+  color: #660099;
+}
+
+#status-panel1 h1, #status-panel1 h3 { 
+  color: #660099;
+}
+

@@ -4,47 +4,63 @@ library(glue)
 library(DT)
 library(futile.logger)
 
-# UI
+#' load panel to allow user to load data
+#'
+#' @param id, character used to specify namespace, see \code{shiny::\link[shiny]{NS}}
+#'
+#' @return a \code{shiny::\link[shiny]{tagList}} containing UI elements
 loadPanelUI <- function(id) {
   ns = NS(id)
 
-  tagList(h3("loadPanel"), 
-          actionButton("loadDataBtn", "Load Demo Data Btn"),
-          uiOutput(ns("loadMenu")),
-          uiOutput(ns("load")))
+  tagList(uiOutput(ns("page")))
 }
 
-# Server
+#' loadPanel module server-side processing
+#'
+#' @param input,output,session standard \code{shiny} boilerplate
+#'
+#' @return list with following components
+#' \describe{
+#'   \item{genomic}{reactive character indicating x variable selection}
+#'   \item{sample}{reactive character indicating y variable selection}
+#' }
 loadPanel <- function(input, output, session) {
 
-  flog.info("20: loadPanel")
-  data <- reactiveVal(list(genomic=NULL, sample=NULL))
+  ns = session$ns
 
-  loadDemoData2 <- reactive({
-    flog.info("24:loadDemoData2")
+  data <- reactiveVal(list(genomic = NULL, 
+                           sample = NULL,
+                           orig_factor_data = NULL,
+                           factor_metadata = NULL,
+                           orig_factor_metadata = NULL,
+                           computed_details = NULL
+                           ))
 
-    orig <- data()
-    sdata = read.csv("data/sample_data.csv")
-    rownames(sdata) <- as.character(sdata$id_full)
+  physeqToSample <- function(physeq) {
+    # -- convert the physeq to the same format as sdata
+    dd <- physeq@sam_data@.Data
+    names(dd) <- physeq@sam_data@names
+    dd_df <- data.frame(dd)
 
-    asv = read.table("data/raw_count.csv", row.names = 1, sep = ",", check.names = FALSE, header = TRUE)
-    rcdata = t(asv)
+    rownames(dd_df) <- physeq@sam_data@row.names
+    dd_df
+  }
 
-    orig <- data()
-    orig[["sample"]] <- sdata
-    orig[["genomic"]] <- rcdata
+  physeqToRawCount <- function(physeq) {
+    t(physeq@otu_table)
+  }
 
-    data(orig)
-  })
+  generate_metadata_from_sample_data <- function(sd) {
+    if(ncol(sd) > 0) {
 
-  loadDemoData1 <- reactive({
-    flog.info("41:loadDemoData1")
-  })
+      md <- map_df(colnames(sd), ~ handle_factor(., dplyr::pull(sd, .)))
+    } else {
+      NULL
+    }
+  }
 
-
+  #this doesn't need to be reactive, it could be a list
   loadDemoData <- reactive({
-    flog.info("46:loadDemoData")
-
     sdata <- physeqToSample(physeq)
     rcdata <- physeqToRawCount(physeq)
 
@@ -52,6 +68,15 @@ loadPanel <- function(input, output, session) {
     orig[["sample"]] <- sdata
     orig[["genomic"]] <- rcdata
 
+    md <- generate_metadata_from_sample_data(sdata)
+    orig[["factor_metadata"]] <- md
+    orig[["orig_factor_metadata"]] <- md
+
+    avfactors <- md %>% 
+                dplyr::filter(type == "factor") %>% 
+                select(name, ready, description)
+        
+    orig[["computed_details"]] <- avfactors 
     data(orig)
   })
 
@@ -63,57 +88,30 @@ loadPanel <- function(input, output, session) {
       style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
   }
 
-  output$loadMenu = renderUI({
-    flog.info("67:loadMenu")
-     div(
-         p(
-           #menuItem('Raw Count/CSV', tabName = 'data'),
+  output$page = renderUI({
+    flog.info("67:loadPage")
+    div(
+       p(
          if(allDataAvailable()) {
-            loadBtn("clearDataBtn", "Clear Data")
+           loadBtn(ns("clearDataBtn"), "Clear Data")
          } else { 
-            tagList(p(
-            loadBtn("xx", "xx"),
-            loadBtn("loadDemoDataBtn", "Load Demo Data"),
-            loadBtn("loadDemoDataBtn2", "Load Demo Data 2")))
-         }))})
+           tagList(actionButton(ns("loadDataBtn"), "Load Phylo Demo Data"))
+       }))
+  })
 
+  # data
+  factorForLoaded <- reactive({
+    d <- data()
+    if (!is.null(d[["sample"]])) {
+      NULL 
+    } 
+  })
 
 
   # allDataAvailable ----
   allDataAvailable <- reactive({
     d <- data()
     if (!is.null(d[["sample"]]) && !is.null(d[["genomic"]])) {
-      print("513: ALL AVAILABLE DATA")
-      flog.info("513: ALL AVAILABLE DATA")
-
-      #????
-      sd <- sampleData()
-      d[["orig_factor_data"]] <- sd
-      if(ncol(sd) > 0) {
-        md <- map_df(colnames(sd),
-                       ~ handle_factor(., dplyr::pull(sd, .)))
-        flog.info("allDataAvailable")
-        flog.info(md)
-
-        md <- md %>%
-                mutate(type = map_chr(colnames(sd), ~ class(sd[[.]])))
-
-        d[["factor_metadata"]] <- md
-        d[["orig_factor_metadata"]] <- md
-
-        d[["computed_details"]] <- data_frame(name = availableFactors(),
-                                              ready = FALSE,
-                                              description = "init")
-
-        computed_details(d[["computed_details"]])
-        flog.info(d[["computed_details"]])
-      } else {
-        values$factor_metadata = NULL
-        values$orig_factor_metadata = NULL
-        d[["factor_metadata"]] <- NULL
-        d[["orig_factor_metadata"]] <- NULL
-      }
-      data(d)
       return(TRUE)
     } else {
       return(FALSE)
@@ -140,55 +138,26 @@ loadPanel <- function(input, output, session) {
      } else {
        data()[["sample"]]
      }
- })
+  })
 
-
-
-
-  
   # LOAD DEMO DATA BUTTON ----
-  ### Load the data then change to the analysis tab
+  ### Load the data then TO DO: change to the analysis tab
   observeEvent(input$loadDataBtn, {
-    flog.info("150:loadDataBtn")
-
-    #show(id = "updating-content", anim = TRUE, animType = "fade")
     loadDemoData()
-
-    #hide(id = "updating-content", anim = TRUE, animType = "fade")
-    #updateTabsetPanel(session, inputId = "sidebar", selected = "analysis")
   })
-
-  observeEvent(input$loadDemoDataBtn, {
-    flog.info("159:loadDemoDataBtn")
-    print("LOAD")
-  })
-
-  observeEvent(input$xx, {
-    flog.info("166:xx loadDemoDataBtn")
-    print("LOAD")
-  })
-
-  observeEvent(input$loadDemoDataBtn2, {
-    flog.info("163:loadDemoDataBtn2")
-  })
-
 
   # CLEAR DEMO DATA BUTTON ----
   observeEvent(input$clearDataBtn, {
-    flog.info("169: clearDataBtn")
-
     orig <- data()
     orig[["sample"]] <- NULL
     orig[["genomic"]] <- NULL
 
+    orig[["factor_metadata"]] <- NULL
+    orig[["orig_factor_metadata"]] <- NULL
+    orig[["computed_details"]] <- NULL
+
     data(orig)
   })
-
-  observe({
-          print("181: loadPanel HELLO")
-          flog.info("181: loadPanel HELLO")
-  })
-
 
   return(data)
 }

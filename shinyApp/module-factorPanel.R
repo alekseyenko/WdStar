@@ -3,10 +3,9 @@ library(shiny)
 library(glue)
 library(readr)
 library(DT)
-library(shinywdstar)
 library(futile.logger)
 
-source("module-assignFactorLevels.R")
+#source("module-assignFactorLevels.R")
 
 # UI
 factorPanelUI <- function(id) {
@@ -14,80 +13,87 @@ factorPanelUI <- function(id) {
 
   tagList(
     fluidRow(
-      column(4, uiOutput(ns("factorDropdown"))),
-      column(4, assignFactorLevelsUI(id = ns("fp")))),
+      column(3, uiOutput(ns("factorDropdown"))),
+      column(9, uiOutput(ns("factorDragAndDrop")))),
       fluidRow(column(12,
         DT::dataTableOutput(ns("factorsDataTable")))))
 }
 
 # Server
-factorPanel <- function(input, output, session, computed_details, sdata, gdata) {
+factorPanel <- function(input, output, session, globalData) {
 
-  computed_details <- computed_details
+  globalData <- globalData
+  outin <- reactiveValues(inputs = NULL)
 
   selectedFactorChoices <- reactiveVal(NULL)
-
-  my_sample_data <- sdata
-  genomic_data <- gdata
-
-  fp <- callModule(assignFactorLevels, "fp", 
-                   selectedFactorChoices, 
-                   my_sample_data, genomic_data)
 
   output$result <- renderPrint(str(input$dragvars))
 
   # Drop down containing potential factors
   output$factorDropdown <- renderUI({
-     af <- computed_details()
+     af <- globalData()[["computed_details"]]
      if(is.null(af)) {
        return(p("No factor data available. NO DETAILS"))
      }
      ns <- session$ns
-     #print(str_c("factors: ", str_c(af, collapse = ", ")))
      selectInput(ns("editFactor"), 'Factor', af %>% pull(name))
   })
 
   # Drop down containing potential factors
   output$factorDragAndDrop <- renderUI({
-    af <- computed_details()
+
+    if(is.null(input$editFactor)) {
+      return(NULL)
+    }
+
+    af <- globalData()[["computed_details"]]
     if(is.null(af)) {
-      return(p("NO DETAILS"))
+      return(p("a1) NO DETAILS"))
     }
     ns <- session$ns
 
-    choices <- af %>% pull(name)
-    #sapply(my_sample_data(), is.factor)
-    #sapply(my_sample_data(), function(x) {length(levels(x))} )
+    print(paste0("SELECTED: ", input$editFactor))
+
+    fmd <- globalData()[["factor_metadata"]]
+    fmdthis <- dplyr::filter(fmd, name == input$editFactor)
+    fchoices <- pull(fmdthis, unique_values)
+    print(fchoices)
+    them <- str_split(fchoices, ", ") %>% unlist()
+    choices <- them
 
     dnd <- 
        esquisse::dragulaInput(inputId = ns("dragvars"),
-                                 sourceLabel = "SSSLevels",
+         sourceLabel = "SSSLevels",
          targetsLabels = c("Level 0", "Level 1"),
          targetsIds = c("level0", "level1"),
          choices = choices,
          badge = TRUE, width = "400px", 
          height = "100px", replace = FALSE) 
 
-       dnd
+    dnd
   })
 
   output$factorsDataTable <- DT::renderDataTable({
-     computed_details()
+     globalData()[["factor_metadata"]]
   })
 
-  outin <- reactiveValues(inputs = NULL)
 
   observeEvent(input$editFactor, {
-    print(glue("editFactor changed: {input$editFactor}"))
-    if(!input$editFactor %in% colnames(my_sample_data())) {
+    mysd <- globalData()[["sample"]]
+    if(is.null(mysd)) {
+      return(NULL)
+    }
+    print(glue("editFactor changed: [{input$editFactor}]"))
+    if(!input$editFactor %in% colnames(mysd)) {
        print("ERROR sample data is not in the correct format")
+       futile.logger::flog.warn("ERROR sample data not in correct format")
+       browser()
        return(NULL)
     }
 
     #####################################
     # set the tab based on the type of factor selected
-
-    vals <- my_sample_data() %>% pull(input$editFactor)
+    vals <- mysd %>% pull(input$editFactor)
     uvals <- unique(vals)
     if(is.factor(vals)) {
       prev <- selectedFactorChoices()
@@ -100,6 +106,9 @@ factorPanel <- function(input, output, session, computed_details, sdata, gdata) 
 
   observeEvent(input$dragvars, {
     print(glue("dragvars changed: {input$dragvars}"))
+    # set the data in factors metadata
+    fmd <- globalData()[["factor_metadata"]]
+    #fmda <- fmd %>% 
     outin$inputs <- reactiveValuesToList(input)
   })
 

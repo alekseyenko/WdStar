@@ -2,7 +2,6 @@ library(dplyr)
 library(stringr)
 library(purrr)
 
-
 uniq_vals_description <- function(ff1) {
   ## remove NA's
   ff <- ff1[!is.na(ff1)]
@@ -11,7 +10,6 @@ uniq_vals_description <- function(ff1) {
     return(str_c("#unique: ", length(uu)))
   }
   ss <- str_c(uu, collapse = ",")
-  flog.info(str_c("uniq_vals_description: ", ss))
   if(!length(ss)) {
     flog.error("nothing in this string")
     flog.error(uu)
@@ -26,7 +24,26 @@ uniq_vals_description <- function(ff1) {
 update_grouping_factor <- function(nm, f, labels, true_label) {
 }
 
-handle_factor <- function(nm, f) {
+handle_factor <- function(nm, fval) {
+
+  f <- fval
+  if (is.factor(f)) {
+    u_vals <- unique(f)
+    num_unique <- length(u_vals)
+    ready <- (num_unique == 2)
+    type <- class(u_vals)
+    labels <- glue::glue_collapse(levels(f), sep = ", ")
+    new_df <- data_frame(name = nm,
+                       num_unique = length(levels(f)),
+                       unique_values = labels,
+                       method_applied = "none",
+                       ready = (num_unique == 2),
+                       type = type, 
+                       description = "factor",
+                       labels = labels,
+                       true_label = first(levels(f)))
+    return(new_df)
+  }
 
   u_vals <- unique(f)
   num_unique <- length(u_vals)

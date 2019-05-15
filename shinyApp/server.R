@@ -1,8 +1,13 @@
+#' shinyAppServer for WdStar 
+#'
+#' @param input, output, session: standard shiny boilerplate
+#'
+#' \describe{
+#'
+#'
+#' }
 shinyAppServer <- function(input, output, session) {
 
-  loadData <- callModule(loadPanel, "loadPanel") 
-  
-  #genomic_data <- loadData()[["genomic"]]
 
   # loaded data
   values <- reactiveValues(sampleMainFactor = NULL,
@@ -36,10 +41,7 @@ shinyAppServer <- function(input, output, session) {
  })
 
 
-  cd <- read_csv("cd.csv")
 
-  factorPanel <- callModule(factorPanel, 
-       "factorPanel", computed_details, sampleData, cd)
 
   load_data <- function() {
      hide(id = "loading-content", anim = TRUE, animType = "fade")
@@ -47,7 +49,6 @@ shinyAppServer <- function(input, output, session) {
   }
 
   load_data()
-  print("AFTER LOAD DATA")
 
   # rawCountData ----
   rawCountDataFromFile <- reactive({
@@ -71,20 +72,14 @@ shinyAppServer <- function(input, output, session) {
      #req(sampleData(), rawCountData())
 
      if( !is.null(values$userPhyseq)) {
-        #print("return USER physeqData")
         return(values$userPhyseq)
      }
 
-     ##sdata <- sampleData()
-     ##asv.t <- rawCountData()
      sdata <- values$sdata
      asv.t <- values$rcdata
 
      phyloseq( otu_table(asv.t, taxa_are_rows = F), sample_data(sdata))
   })
-
-
-
 
   # computeTresFtn ----
   computeTresFtn <- function(strata, mainf, dist) {
@@ -188,8 +183,8 @@ shinyAppServer <- function(input, output, session) {
             select(test_id, distance) %>%
             left_join(w_df, by="test_id")
 
-    flog.info(str_c("results: ", nrow(a_df)))
-    flog.info(a_df)
+    #flog.info(str_c("results: ", nrow(a_df)))
+    #flog.info(a_df)
     if(nrow(a_df) != nrow(w_df)){
       browser()
     }
@@ -225,11 +220,8 @@ shinyAppServer <- function(input, output, session) {
     }
   })
 
-  # HERE ----
-
   ### applyFactorNumeric
   applyFactorNumeric <- function(ft, fmethod) {
-    flog.info(str_c("applyFactorNumeric: ", ft, " fmethod ", fmethod))
     flog.info(str_c("applyFactorNumeric: ", ft, " fmethod ", fmethod))
     orig_md <- orig_metadata()
     md <- metadata()
@@ -292,6 +284,8 @@ shinyAppServer <- function(input, output, session) {
 
   # availableFactors ----
   availableFactors <- reactive({
+      print("293: server: AF")
+      browser()
       sd <- sampleData()
       if(!is.null(sd)) {
         choices <- colnames(sd)
@@ -302,74 +296,16 @@ shinyAppServer <- function(input, output, session) {
       }
   })
 
-  # allDataAvailable ----
-  allDataAvailable <- reactive({
-    if (!is.null(sampleData()) && !is.null(rawCountData())) {
-      #print("513: ALL AVAILABLE DATA")
 
-      sd <- sampleData()
-      values$orig_factor_data = sd
-      if(ncol(sd) > 0) {
-        md <- map_df(colnames(sd),
-                       ~ handle_factor(., dplyr::pull(sd, .)))
-        flog.info("allDataAvailable")
-        flog.info(md)
-
-        md <- md %>%
-                mutate(type = map_chr(colnames(sd), ~ class(sd[[.]])))
-
-        values$factor_metadata = md
-        values$orig_factor_metadata = md
-
-        values$computed_details <- data_frame(name = availableFactors(),
-                                              ready = FALSE,
-                                              description = "init")
-
-        computed_details(values$computed_details)
-        flog.info(values$computed_details)
-      } else {
-        values$factor_metadata = NULL
-        values$orig_factor_metadata = NULL
-      }
-      return(TRUE)
-    } else {
-      return(FALSE)
-    }
-  })
-
-
-  testsPanel <- callModule(testsPanel, "testsPanel", computed_details, 
-       sampleData, allDataAvailable, numTests, testsData, testsDT)
-
-  analysisPanel <- callModule(analysisPanel, "analysisPanel", computed_details, 
-       sampleData, 
-       allDataAvailable, availableFactors, numTests, testsData, testsDT)
-
-
-  output$dataLoaded <- renderText({
-    flog.info("350:server dataLoaded")
-    if (allDataAvailable()) {
-       flog.info("352:server dataLoaded:data loaded")
-       "data loaded"
-    } else {""}
-  })
-
-  physeqToSample <- function(physeq) {
-    # -- convert the physeq to the same format as sdata
-    dd <- physeq@sam_data@.Data
-    names(dd) <- physeq@sam_data@names
-    dd_df <- data.frame(dd)
-
-    rownames(dd_df) <- physeq@sam_data@row.names
-    dd_df
-  }
-
-  physeqToRawCount <- function(physeq) {
-    t(physeq@otu_table)
-  }
 
   output$intro <- renderText({
     markdown::renderMarkdown('intro.md')
   })
 
+  globalData <- callModule(loadPanel, "loadPanel") 
+  factorData <- callModule(factorPanel, "factorPanel", globalData)
+
+  analysisPanel <- callModule(analysisPanel, "analysisPanel", globalData) 
+
+  statusPanel <- callModule(statusPanel, "statusPanel", globalData)
 }
