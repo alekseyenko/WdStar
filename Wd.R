@@ -77,10 +77,10 @@ generic.distance.permutation.test =
   
   if(!is.null(strata)){
     # map elements of each strata back to their positions in the factor variable
-    strata.map = unlist(tapply(1:length(f), strata, identity))
+    strata.map = order(unlist(tapply(seq_along(f), strata, identity)))
     generate.permutation=function(){
       p = unlist(tapply(f,strata,sample)) # permute within strata
-      f[p[strata.map]]
+      p[strata.map]
     }  
   }
   
