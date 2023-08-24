@@ -14,6 +14,15 @@
 #   Test Package:              'Ctrl + Shift + T'
 
 
+#' Tw2
+#'
+#' @param dm Distance matrix
+#' @param f Factor
+#'
+#' @return
+#' @export
+#'
+#' @examples
 Tw2 = function(dm, f){
   if(nlevels(f) != 2) return(NULL)
   SS2 = dist.ss2(as.matrix(dm^2),f)
@@ -32,8 +41,16 @@ Tw2 = function(dm, f){
   t.stat
 }
 
+#' This method computes Wd* statistic for distance matrix dm and factor f
+#'
+#' @param dm Distance matrix
+#' @param f Factor
+#'
+#' @return
+#' @export
+#'
+#' @examples
 WdS = function(dm, f){
-  # This method computes Wd* statistic for distance matrix dm and factor f
   ns = table(f)
   SS2 = dist.ss2(as.matrix(dm)^2, f)
   s2 = diag(SS2)/ns/(ns-1)
