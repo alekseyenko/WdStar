@@ -56,7 +56,7 @@ WdS = function(dm, f){
   s2 = diag(SS2)/ns/(ns-1)
   W = sum(ns/s2)
 
-  idxs = apply(combn(levels(f), 2),2, function(idx) levels(f) %in% idx)
+  idxs = apply(utils::combn(levels(f), 2),2, function(idx) levels(f) %in% idx)
 
   Ws = sum(apply(idxs, 2,
                  function(idx) sum(ns[idx])/prod(s2[idx]) *
