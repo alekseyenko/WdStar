@@ -2,15 +2,31 @@
 % Please edit documentation in R/main.R
 \name{WdS}
 \alias{WdS}
-\title{This method computes Wd* statistic for distance matrix dm and factor f}
+\title{Calculate the Wd* Statistic for Heteroscedastic Test}
 \usage{
 WdS(dm, f)
 }
 \arguments{
-\item{dm}{Distance matrix}
+\item{dm}{A distance matrix.}
 
-\item{f}{Factor}
+\item{f}{A factor variable.}
+}
+\value{
+The calculated Wd* statistic.
 }
 \description{
-This method computes Wd* statistic for distance matrix dm and factor f
+This function calculates the Wd* statistic for a heteroscedastic test, extending Welch's solution to multivariate data.
+}
+\details{
+The Wd* statistic is used for comparing means of k populations with unequal variances, suitable for microbiome data.
+The test uses permutation testing for significance estimation.
+}
+\examples{
+# Example usage
+data <- ...  # TODO provide an example distance matrix and factor variable
+WdS(data$dm, data$f)
+
+}
+\references{
+Hamidi, Bashir, et al. "$ W_ {d}^{*} $-test: robust distance-based multivariate analysis of variance." Microbiome 7.1 (2019): 1-9.
 }

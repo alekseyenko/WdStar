@@ -22,6 +22,7 @@ A matrix containing posthoc test results.
 This function performs posthoc tests for the Tw2 statistic using a permutation approach.
 }
 \examples{
+# Example usage
 data <- ...  # TODO add data here
 Tw2.posthoc.tests(data$dm, data$f)
 

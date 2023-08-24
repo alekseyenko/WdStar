@@ -22,6 +22,7 @@ A matrix containing 1-vs-All posthoc test results.
 This function performs 1-vs-All posthoc tests for the Tw2 statistic using a permutation approach.
 }
 \examples{
+# Example usage
 data <- ...  # TODO add data here
 Tw2.posthoc.1vsAll.tests(data$dm, data$f)
 

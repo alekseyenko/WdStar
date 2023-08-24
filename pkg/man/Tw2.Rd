@@ -2,15 +2,31 @@
 % Please edit documentation in R/main.R
 \name{Tw2}
 \alias{Tw2}
-\title{Tw2}
+\title{Calculate the Tw2 Statistic for Heteroscedastic Test}
 \usage{
 Tw2(dm, f)
 }
 \arguments{
-\item{dm}{Distance matrix}
+\item{dm}{A distance matrix.}
 
-\item{f}{Factor}
+\item{f}{A factor variable.}
+}
+\value{
+The calculated Tw2 statistic.
 }
 \description{
-Tw2
+This function calculates the Tw2 statistic for a heteroscedastic test
+}
+\details{
+The Tw2 statistic is used for comparing means of k populations with potentially unequal observations.
+The test is suitable for analysis of microbiome data using permutation testing.
+}
+\examples{
+# Example usage
+data <- ...  # TODO Provide an example distance matrix and factor variable
+Tw2(data$dm, data$f)
+
+}
+\references{
+Hamidi, Bashir, et al. "$ W_ {d}^{*} $-test: robust distance-based multivariate analysis of variance." Microbiome 7.1 (2019): 1-9.
 }

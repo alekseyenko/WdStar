@@ -10,6 +10,7 @@
 #' @return A matrix containing posthoc test results.
 #'
 #' @examples
+#' # Example usage
 #' data <- ...  # TODO add data here
 #' Tw2.posthoc.tests(data$dm, data$f)
 #'
@@ -41,6 +42,7 @@ Tw2.posthoc.tests <- function(dm, f, nrep = 999, strata = NULL) {
 #' @return A matrix containing 1-vs-All posthoc test results.
 #'
 #' @examples
+#' # Example usage
 #' data <- ...  # TODO add data here
 #' Tw2.posthoc.1vsAll.tests(data$dm, data$f)
 #'

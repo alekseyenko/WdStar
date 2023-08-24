@@ -1,28 +1,25 @@
-# Hello, world!
-#
-# This is an example function named 'hello'
-# which prints 'Hello, world!'.
-#
-# You can learn more about package authoring with RStudio at:
-#
-#   http://r-pkgs.had.co.nz/
-#
-# Some useful keyboard shortcuts for package authoring:
-#
-#   Install Package:           'Ctrl + Shift + B'
-#   Check Package:             'Ctrl + Shift + E'
-#   Test Package:              'Ctrl + Shift + T'
-
-
-#' Tw2
+#' Calculate the Tw2 Statistic for Heteroscedastic Test
 #'
-#' @param dm Distance matrix
-#' @param f Factor
+#' This function calculates the Tw2 statistic for a heteroscedastic test
 #'
-#' @return
-#' @export
+#' @param dm A distance matrix.
+#' @param f A factor variable.
+#'
+#' @return The calculated Tw2 statistic.
+#'
+#' @details
+#' The Tw2 statistic is used for comparing means of k populations with potentially unequal observations.
+#' The test is suitable for analysis of microbiome data using permutation testing.
 #'
 #' @examples
+#' # Example usage
+#' data <- ...  # TODO Provide an example distance matrix and factor variable
+#' Tw2(data$dm, data$f)
+#'
+#' @references
+#' Hamidi, Bashir, et al. "$ W_ {d}^{*} $-test: robust distance-based multivariate analysis of variance." Microbiome 7.1 (2019): 1-9.
+#'
+#' @export
 Tw2 = function(dm, f){
   if(nlevels(f) != 2) return(NULL)
   SS2 = dist.ss2(as.matrix(dm^2),f)
@@ -41,15 +38,28 @@ Tw2 = function(dm, f){
   t.stat
 }
 
-#' This method computes Wd* statistic for distance matrix dm and factor f
+#' Calculate the Wd* Statistic for Heteroscedastic Test
 #'
-#' @param dm Distance matrix
-#' @param f Factor
+#' This function calculates the Wd* statistic for a heteroscedastic test, extending Welch's solution to multivariate data.
 #'
-#' @return
-#' @export
+#' @param dm A distance matrix.
+#' @param f A factor variable.
+#'
+#' @return The calculated Wd* statistic.
+#'
+#' @details
+#' The Wd* statistic is used for comparing means of k populations with unequal variances, suitable for microbiome data.
+#' The test uses permutation testing for significance estimation.
 #'
 #' @examples
+#' # Example usage
+#' data <- ...  # TODO provide an example distance matrix and factor variable
+#' WdS(data$dm, data$f)
+#'
+#' @references
+#' Hamidi, Bashir, et al. "$ W_ {d}^{*} $-test: robust distance-based multivariate analysis of variance." Microbiome 7.1 (2019): 1-9.
+#'
+#' @export
 WdS = function(dm, f){
   ns = table(f)
   SS2 = dist.ss2(as.matrix(dm)^2, f)
