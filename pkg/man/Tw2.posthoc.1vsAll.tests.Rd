@@ -7,23 +7,34 @@
 Tw2.posthoc.1vsAll.tests(dm, f, nrep = 999, strata = NULL)
 }
 \arguments{
-\item{dm}{A distance matrix.}
+\item{dm}{A distance matrix representing the pairwise distances between observations.}
 
-\item{f}{A factor variable.}
+\item{f}{A factor variable indicating the group membership of each observation.}
 
-\item{nrep}{Number of permutations (default: 999).}
+\item{nrep}{Number of permutations to perform (default: 999).}
 
-\item{strata}{A factor variable for stratified permutation (default: NULL).}
+\item{strata}{A factor variable for stratified permutation. This allows for controlling confounders
+in repeated measures or other hierarchical designs (default: NULL).}
 }
 \value{
-A matrix containing 1-vs-All posthoc test results.
+A matrix containing 1-vs-All posthoc test results, with columns for sample sizes,
+        p-values, Tw2 statistics, and number of permutations.
 }
 \description{
 This function performs 1-vs-All posthoc tests for the Tw2 statistic using a permutation approach.
+This is useful for comparing each group against all other groups collectively.
+This method is particularly useful in settings where multiple testing can lead to power loss,
+such as microbiome data analyses.
 }
 \examples{
-# Example usage
-data <- ...  # TODO add data here
-Tw2.posthoc.1vsAll.tests(data$dm, data$f)
+\dontrun{
+  # Example usage
+  data <- ...  # TODO add data here
+  result <- Tw2.posthoc.1vsAll.tests(data$dm, data$f)
+  print(result)
+}
 
+}
+\seealso{
+\url{https://github.com/alekseyenko/WdStar}
 }

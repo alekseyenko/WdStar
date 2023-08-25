@@ -7,24 +7,33 @@
 Tw2(dm, f)
 }
 \arguments{
-\item{dm}{A distance matrix.}
+\item{dm}{A distance matrix, representing dissimilarity between observations.}
 
-\item{f}{A factor variable.}
+\item{f}{A factor variable indicating the group for each observation.}
 }
 \value{
 The calculated Tw2 statistic.
 }
 \description{
-This function calculates the Tw2 statistic for a heteroscedastic test
+This function calculates the Tw2 statistic to compare means of k populations
+with potentially unequal observations. It is suitable for microbiome data
+and utilizes permutation testing for significance estimation.
 }
 \details{
-The Tw2 statistic is used for comparing means of k populations with potentially unequal observations.
-The test is suitable for analysis of microbiome data using permutation testing.
+The function first checks if the factor variable has exactly two levels.
+The Tw2 statistic is a modification of Hotelling's T-square statistic
+adapted for heteroscedasticity and specifically suitable for microbiome data.
+It calculates the sum of squares within each group and then computes the
+Tw2 statistic based on these sum of squares.
 }
 \examples{
-# Example usage
-data <- ...  # TODO Provide an example distance matrix and factor variable
-Tw2(data$dm, data$f)
+\dontrun{
+# Generate a synthetic distance matrix and a factor variable
+dm <- matrix(runif(100), nrow = 10)
+f <- factor(rep(1:2, each = 5))
+# Calculate the Tw2 statistic
+Tw2_stat <- Tw2(dm, f)
+}
 
 }
 \references{

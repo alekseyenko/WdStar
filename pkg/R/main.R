@@ -1,20 +1,29 @@
 #' Calculate the Tw2 Statistic for Heteroscedastic Test
 #'
-#' This function calculates the Tw2 statistic for a heteroscedastic test
+#' This function calculates the Tw2 statistic to compare means of k populations
+#' with potentially unequal observations. It is suitable for microbiome data
+#' and utilizes permutation testing for significance estimation.
 #'
-#' @param dm A distance matrix.
-#' @param f A factor variable.
+#' @param dm A distance matrix, representing dissimilarity between observations.
+#' @param f A factor variable indicating the group for each observation.
 #'
 #' @return The calculated Tw2 statistic.
 #'
 #' @details
-#' The Tw2 statistic is used for comparing means of k populations with potentially unequal observations.
-#' The test is suitable for analysis of microbiome data using permutation testing.
+#' The function first checks if the factor variable has exactly two levels.
+#' The Tw2 statistic is a modification of Hotelling's T-square statistic
+#' adapted for heteroscedasticity and specifically suitable for microbiome data.
+#' It calculates the sum of squares within each group and then computes the
+#' Tw2 statistic based on these sum of squares.
 #'
 #' @examples
-#' # Example usage
-#' data <- ...  # TODO Provide an example distance matrix and factor variable
-#' Tw2(data$dm, data$f)
+#' \dontrun{
+#' # Generate a synthetic distance matrix and a factor variable
+#' dm <- matrix(runif(100), nrow = 10)
+#' f <- factor(rep(1:2, each = 5))
+#' # Calculate the Tw2 statistic
+#' Tw2_stat <- Tw2(dm, f)
+#' }
 #'
 #' @references
 #' Hamidi, Bashir, et al. "$ W_ {d}^{*} $-test: robust distance-based multivariate analysis of variance." Microbiome 7.1 (2019): 1-9.
@@ -40,24 +49,35 @@ Tw2 = function(dm, f){
 
 #' Calculate the Wd* Statistic for Heteroscedastic Test
 #'
-#' This function calculates the Wd* statistic for a heteroscedastic test, extending Welch's solution to multivariate data.
+#' This function calculates the Wd* statistic to compare means of k populations
+#' with potentially unequal variances and observations. It is suitable for microbiome data
+#' and utilizes permutation testing for significance estimation.
 #'
-#' @param dm A distance matrix.
-#' @param f A factor variable.
+#' @param dm A distance matrix, representing dissimilarity between observations.
+#' @param f A factor variable indicating the group for each observation.
 #'
 #' @return The calculated Wd* statistic.
 #'
 #' @details
-#' The Wd* statistic is used for comparing means of k populations with unequal variances, suitable for microbiome data.
-#' The test uses permutation testing for significance estimation.
+#' This function is an extension of Welch's ANOVA statistic suitable for multivariate
+#' data and specifically for microbiome data. The Wd* statistic is computed based on
+#' pairwise square differences between group means and variances. It explicitly accounts
+#' for potentially unbalanced number of observations and differences in multivariate
+#' spread in the two samples.
 #'
 #' @examples
-#' # Example usage
-#' data <- ...  # TODO provide an example distance matrix and factor variable
-#' WdS(data$dm, data$f)
+#' \dontrun{
+#' # Generate a synthetic distance matrix and a factor variable
+#' dm <- matrix(runif(100), nrow = 10)
+#' f <- factor(rep(1:2, each = 5))
+#' # Calculate the Wd* statistic
+#' WdS_stat <- WdS(dm, f)
+#' }
 #'
 #' @references
 #' Hamidi, Bashir, et al. "$ W_ {d}^{*} $-test: robust distance-based multivariate analysis of variance." Microbiome 7.1 (2019): 1-9.
+#'
+#' @seealso \url{https://github.com/alekseyenko/WdStar}
 #'
 #' @export
 WdS = function(dm, f){

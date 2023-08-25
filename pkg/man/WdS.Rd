@@ -7,26 +7,38 @@
 WdS(dm, f)
 }
 \arguments{
-\item{dm}{A distance matrix.}
+\item{dm}{A distance matrix, representing dissimilarity between observations.}
 
-\item{f}{A factor variable.}
+\item{f}{A factor variable indicating the group for each observation.}
 }
 \value{
 The calculated Wd* statistic.
 }
 \description{
-This function calculates the Wd* statistic for a heteroscedastic test, extending Welch's solution to multivariate data.
+This function calculates the Wd* statistic to compare means of k populations
+with potentially unequal variances and observations. It is suitable for microbiome data
+and utilizes permutation testing for significance estimation.
 }
 \details{
-The Wd* statistic is used for comparing means of k populations with unequal variances, suitable for microbiome data.
-The test uses permutation testing for significance estimation.
+This function is an extension of Welch's ANOVA statistic suitable for multivariate
+data and specifically for microbiome data. The Wd* statistic is computed based on
+pairwise square differences between group means and variances. It explicitly accounts
+for potentially unbalanced number of observations and differences in multivariate
+spread in the two samples.
 }
 \examples{
-# Example usage
-data <- ...  # TODO provide an example distance matrix and factor variable
-WdS(data$dm, data$f)
+\dontrun{
+# Generate a synthetic distance matrix and a factor variable
+dm <- matrix(runif(100), nrow = 10)
+f <- factor(rep(1:2, each = 5))
+# Calculate the Wd* statistic
+WdS_stat <- WdS(dm, f)
+}
 
 }
 \references{
 Hamidi, Bashir, et al. "$ W_ {d}^{*} $-test: robust distance-based multivariate analysis of variance." Microbiome 7.1 (2019): 1-9.
+}
+\seealso{
+\url{https://github.com/alekseyenko/WdStar}
 }

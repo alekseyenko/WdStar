@@ -7,23 +7,33 @@
 Tw2.posthoc.tests(dm, f, nrep = 999, strata = NULL)
 }
 \arguments{
-\item{dm}{A distance matrix.}
+\item{dm}{A distance matrix representing the pairwise distances between observations.}
 
-\item{f}{A factor variable.}
+\item{f}{A factor variable indicating the group membership of each observation.}
 
-\item{nrep}{Number of permutations (default: 999).}
+\item{nrep}{Number of permutations to perform (default: 999).}
 
-\item{strata}{A factor variable for stratified permutation (default: NULL).}
+\item{strata}{A factor variable for stratified permutation. This allows for controlling confounders
+in repeated measures or other hierarchical designs (default: NULL).}
 }
 \value{
-A matrix containing posthoc test results.
+A matrix containing posthoc test results, with columns for level combinations,
+        sample sizes, p-values, Tw2 statistics, and number of permutations.
 }
 \description{
 This function performs posthoc tests for the Tw2 statistic using a permutation approach.
+The Tw2 statistic is an extension of the Welch ANOVA test for multivariate distances.
+It is especially useful for analyzing microbiome data.
 }
 \examples{
-# Example usage
-data <- ...  # TODO add data here
-Tw2.posthoc.tests(data$dm, data$f)
+\dontrun{
+  # Example usage
+  data <- ...  # TODO add data here
+  result <- Tw2.posthoc.tests(data$dm, data$f)
+  print(result)
+}
 
+}
+\seealso{
+\url{https://github.com/alekseyenko/WdStar}
 }

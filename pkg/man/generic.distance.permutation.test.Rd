@@ -40,7 +40,7 @@ It is particularly useful for analyzing microbiome data.
 # TODO: Add examples
 }
 \references{
-[https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-019-0659-9]
+Hamidi, Bashir, et al. "$ W_ {d}^{*} $-test: robust distance-based multivariate analysis of variance." Microbiome 7.1 (2019): 1-9.
 }
 \seealso{
 \code{\link{Tw2.test}}, \code{\link{WdS.test}}
