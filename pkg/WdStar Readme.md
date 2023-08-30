@@ -1,6 +1,6 @@
 
 
-# WdStar: # robust distance-based multivariate analysis of variance for microbiome data
+# WdStar: robust distance-based multivariate analysis of variance for microbiome data
 
 ## Introduction 
 
