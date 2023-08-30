@@ -15,10 +15,10 @@
 #'
 #' @examples
 #' \dontrun{
-#'   # Example usage
-#'   data <- ...  # TODO add data here
-#'   result <- Tw2.posthoc.tests(data$dm, data$f)
-#'   print(result)
+#' # Example usage
+#' data <- ... # TODO add data here
+#' result <- Tw2.posthoc.tests(data$dm, data$f)
+#' print(result)
 #' }
 #'
 #' @seealso \url{https://github.com/alekseyenko/WdStar}
@@ -29,9 +29,11 @@ Tw2.posthoc.tests <- function(dm, f, nrep = 999, strata = NULL) {
 
   Tw2.subset.test <- function(include.levels) {
     subs <- f %in% include.levels
-    c(include.levels,
+    c(
+      include.levels,
       table(f[subs, drop = TRUE]),
-      Tw2.test(dd[subs, subs], f[subs, drop = TRUE], nrep = nrep, strata = strata[subs]))
+      Tw2.test(dd[subs, subs], f[subs, drop = TRUE], nrep = nrep, strata = strata[subs])
+    )
   }
 
   res <- t(utils::combn(levels(f), 2, Tw2.subset.test))
@@ -57,10 +59,10 @@ Tw2.posthoc.tests <- function(dm, f, nrep = 999, strata = NULL) {
 #'
 #' @examples
 #' \dontrun{
-#'   # Example usage
-#'   data <- ...  # TODO add data here
-#'   result <- Tw2.posthoc.1vsAll.tests(data$dm, data$f)
-#'   print(result)
+#' # Example usage
+#' data <- ... # TODO add data here
+#' result <- Tw2.posthoc.1vsAll.tests(data$dm, data$f)
+#' print(result)
 #' }
 #'
 #' @seealso \url{https://github.com/alekseyenko/WdStar}
