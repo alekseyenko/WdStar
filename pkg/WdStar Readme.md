@@ -18,5 +18,5 @@ Microbiome data is incredibly rich and complex, making its analysis a challengin
 ## Quick Start
 Install the package directly from GitHub: 
 ```R
-remotes::install_github("alekseyenko/WdStar")
+remotes::install_github("alekseyenko/WdStar/pkg")
 ```
