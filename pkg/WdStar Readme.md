@@ -13,7 +13,11 @@
 Microbiome data is incredibly rich and complex, making its analysis a challenging task. Commonly, community-wide analysis is used to evaluate the effects of interventions on microbiome composition. However,  methods such as PERMANOVA have limitations, prone to misleading results stemming from uneven sample sizes or difference in variance between groups (heteroscedasticity). 
 
 ## Our Solution
-`WdStar` introduces a more robust approach based on Welch's MANOVA, specially designed to handle the intricacies of microbiome data. Our method: - Is robust to heteroscedasticity in the data. - Can handle multi-level factors and stratification. - Allows for multiple post hoc testing scenarios. 
+`WdStar` introduces a more robust approach based on Welch's MANOVA, specially designed to handle the intricacies of microbiome data. 
+Our method: 
+- Is robust to heteroscedasticity in the data. 
+- Can handle multi-level factors and stratification.
+- Allows for multiple post hoc testing scenarios. 
 
 ## Quick Start
 Install the package directly from GitHub: 
