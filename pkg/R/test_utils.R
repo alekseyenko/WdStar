@@ -5,7 +5,7 @@
 #' It is particularly useful for analyzing microbiome data.
 #'
 #' @param test.statistic A function to calculate the test statistic.
-#' @param dm A distance or dissimilarity matrix.
+#' @param dm A distance metric (any arbitrary distance or dissimilarity metric).
 #' @param f A factor variable representing the groups.
 #' @param nrep The number of permutations to conduct. Default is 999.
 #' @param strata An optional stratifying variable for restricted permutation.
@@ -56,7 +56,7 @@ generic.distance.permutation.test <-
 #' This function is a specialized version of the \code{\link{generic.distance.permutation.test}},
 #' specifically designed to use the Tw2 test statistic for k-group comparison.
 #'
-#' @param dm A distance or dissimilarity matrix.
+#' @param dm A distance metric (any arbitrary distance or dissimilarity metric)
 #' @param f A factor variable representing the groups.
 #' @param nrep The number of permutations to conduct. Default is 999.
 #' @param strata An optional stratifying variable for restricted permutation.
@@ -81,7 +81,7 @@ Tw2.test <- function(dm, f, nrep = 999, strata = NULL) {
 #' This function is a specialized version of the \code{\link{generic.distance.permutation.test}},
 #' specifically designed to use the WdS test statistic for k-group comparison.
 #'
-#' @param dm A distance or dissimilarity matrix.
+#' @param dm A distance metric (any arbitrary distance or dissimilarity metric)
 #' @param f A factor variable representing the groups.
 #' @param nrep The number of permutations to conduct. Default is 999.
 #' @param strata An optional stratifying variable for restricted permutation.
