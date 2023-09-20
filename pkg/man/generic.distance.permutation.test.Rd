@@ -15,7 +15,7 @@ generic.distance.permutation.test(
 \arguments{
 \item{test.statistic}{A function to calculate the test statistic.}
 
-\item{dm}{A distance or dissimilarity matrix.}
+\item{dm}{A distance metric (any arbitrary distance or dissimilarity metric).}
 
 \item{f}{A factor variable representing the groups.}
 

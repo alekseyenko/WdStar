@@ -7,7 +7,7 @@
 Tw2.test(dm, f, nrep = 999, strata = NULL)
 }
 \arguments{
-\item{dm}{A distance or dissimilarity matrix.}
+\item{dm}{A distance metric (any arbitrary distance or dissimilarity metric)}
 
 \item{f}{A factor variable representing the groups.}
 
