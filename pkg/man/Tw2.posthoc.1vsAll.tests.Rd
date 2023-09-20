@@ -28,10 +28,10 @@ such as microbiome data analyses.
 }
 \examples{
 \dontrun{
-  # Example usage
-  data <- ...  # TODO add data here
-  result <- Tw2.posthoc.1vsAll.tests(data$dm, data$f)
-  print(result)
+# Example usage
+data <- ... # TODO add data here
+result <- Tw2.posthoc.1vsAll.tests(data$dm, data$f)
+print(result)
 }
 
 }

@@ -27,10 +27,10 @@ It is especially useful for analyzing microbiome data.
 }
 \examples{
 \dontrun{
-  # Example usage
-  data <- ...  # TODO add data here
-  result <- Tw2.posthoc.tests(data$dm, data$f)
-  print(result)
+# Example usage
+data <- ... # TODO add data here
+result <- Tw2.posthoc.tests(data$dm, data$f)
+print(result)
 }
 
 }
