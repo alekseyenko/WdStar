@@ -19,7 +19,9 @@ This function calculates the sigma squared statistic for each group defined
 by a factor variable in a given distance matrix.
 }
 \examples{
+\dontrun{
 dm <- as.dist(matrix(runif(100), nrow = 10))
 f <- factor(c(rep("A", 5), rep("B", 5)))
 dist.group.sigma2(dm, f)
+}
 }

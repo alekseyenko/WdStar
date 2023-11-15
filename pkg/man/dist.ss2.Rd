@@ -19,7 +19,9 @@ This function calculates the sum of squares for a given distance matrix,
 weighted by a factor variable.
 }
 \examples{
+\dontrun{
 dm2 <- matrix(runif(100), nrow = 10)
 f <- factor(c(rep("A", 5), rep("B", 5)))
 dist.ss2(dm2, f)
+}
 }

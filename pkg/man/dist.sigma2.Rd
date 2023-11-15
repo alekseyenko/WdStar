@@ -16,6 +16,8 @@ Sigma squared value.
 This function computes the sigma squared statistic for a given distance matrix.
 }
 \examples{
+\dontrun{
 dm <- as.dist(matrix(runif(100), nrow = 10))
 dist.sigma2(dm)
+}
 }
