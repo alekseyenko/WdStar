@@ -32,7 +32,5 @@ The 'aPCoA.dist' function first evaluates the left-hand side (LHS) of the formul
 data(iris)
 formula <- Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width
 dist_matrix <- apcoa.dist(formula, iris)
-print(dist_matrix)
-}
-
+print(dist_matrix)}
 }

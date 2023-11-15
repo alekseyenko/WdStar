@@ -131,9 +131,7 @@ dist.cohen.d <- function(dm, f) {
 #' data(iris)
 #' formula <- Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width
 #' dist_matrix <- apcoa.dist(formula, iris)
-#' print(dist_matrix)
-#' }
-#'
+#' print(dist_matrix)}
 aPCoA.dist = function (formula, data){
   Terms <- stats::terms(formula, data = data)
   lhs <- formula[[2]]
