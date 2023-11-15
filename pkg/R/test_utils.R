@@ -108,19 +108,19 @@ Tw2.test <- function(dm, f, nrep = 999, strata = NULL) {
 #'
 #' # Example with optional aPCoA preprocessing
 #' data(iris)
-#' dm <- as.dist(matrix(runif(100), nrow = 10))
 #' formula <- Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width
-#' WdS.test(dm = dm, f = iris$Species, data = iris, formula = formula)
-#' }
 #'
+#' distance_matrix = dist(iris[2:4], method="euclidean") # Numerical columns only
+#'
+#' WdS.test(dm = distance_matrix, f = iris$Species)}
 WdS.test <- function(dm, f, nrep = 999, strata = NULL, data = NULL, formula = NULL) {
   if (!is.null(data) != !is.null(formula)) {
     stop("Both 'data' and 'formula' must be provided together for aPCoA processing.")
   }
-  
+
   if (!is.null(data) && !is.null(formula)) {
     dm <- aPCoA.dist(formula, data)
   }
-  
+
   generic.distance.permutation.test(WdS, dm = dm, f = f, nrep = nrep, strata = strata)
 }
