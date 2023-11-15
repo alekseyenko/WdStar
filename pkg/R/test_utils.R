@@ -76,27 +76,49 @@ Tw2.test <- function(dm, f, nrep = 999, strata = NULL) {
   generic.distance.permutation.test(Tw2, dm = dm, f = f, nrep = nrep, strata = strata)
 }
 
-#' Conducts a WdS distance-based permutation test for k-group differences
+#' Conducts a WdS Distance-Based Permutation Test for k-Group Differences with Optional aPCoA Preprocessing
 #'
-#' This function is a specialized version of the \code{\link{generic.distance.permutation.test}},
-#' specifically designed to use the WdS test statistic for k-group comparison.
+#' This function performs the WdS test statistic for k-group comparison using a given distance matrix.
+#' Optionally, it can preprocess the provided data through the \code{aPCoA.dist} function using a specified
+#' formula before performing the test, if 'data', 'dm', and 'formula' are provided.
 #'
-#' @param dm A distance metric (any arbitrary distance or dissimilarity metric)
+#' @param dm A distance matrix (any arbitrary distance or dissimilarity metric).
 #' @param f A factor variable representing the groups.
 #' @param nrep The number of permutations to conduct. Default is 999.
 #' @param strata An optional stratifying variable for restricted permutation.
+#' @param data (optional) Data frame to be used in conjunction with 'formula' and 'dm' for aPCoA preprocessing.
+#' @param formula (optional) A formula to be used with 'data' for aPCoA preprocessing.
 #'
 #' @return A list containing:
 #' \itemize{
-#'   \item \code{p.value}: The p-value of the test
-#'   \item \code{statistic}: The observed test statistic
-#'   \item \code{nrep}: The number of permutations performed
+#'   \item \code{p.value}: The p-value of the test.
+#'   \item \code{statistic}: The observed test statistic.
+#'   \item \code{nrep}: The number of permutations performed.
 #' }
 #'
-#' @seealso \code{\link{generic.distance.permutation.test}}, \code{\link{Tw2.test}}
+#' @seealso \code{\link{generic.distance.permutation.test}}, \code{\link{Tw2.test}},
+#'          \code{\link{aPCoA.dist}}
 #' @export
 #' @examples
-#' # TODO: Add examples
-WdS.test <- function(dm, f, nrep = 999, strata = NULL) {
+#' # Example with provided distance matrix
+#' dm <- as.dist(matrix(runif(100), nrow = 10))
+#' f <- factor(c(rep("A", 5), rep("B", 5)))
+#' WdS.test(dm, f)
+#'
+#' # Example with optional aPCoA preprocessing
+#' data(iris)
+#' dm <- as.dist(matrix(runif(100), nrow = 10))
+#' formula <- Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width
+#' WdS.test(dm = dm, f = iris$Species, data = iris, formula = formula)
+#'
+WdS.test <- function(dm, f, nrep = 999, strata = NULL, data = NULL, formula = NULL) {
+  if (!is.null(data) != !is.null(formula)) {
+    stop("Both 'data' and 'formula' must be provided together for aPCoA processing.")
+  }
+  
+  if (!is.null(data) && !is.null(formula)) {
+    dm <- aPCoA.dist(formula, data)
+  }
+  
   generic.distance.permutation.test(WdS, dm = dm, f = f, nrep = nrep, strata = strata)
 }
