@@ -7,8 +7,10 @@
 #' @return Logical indicating whether the object is a distance matrix.
 #'
 #' @examples
+#' \dontrun{
 #' is.dist(as.dist(matrix(1:4, nrow = 2)))
 #' is.dist(matrix(1:4, nrow = 2))
+#' }
 is.dist <- function(x) any(class(x) == "dist")
 
 #' Calculate Sigma Squared for Distance Matrix
@@ -20,8 +22,10 @@ is.dist <- function(x) any(class(x) == "dist")
 #' @return Sigma squared value.
 #'
 #' @examples
+#' \dontrun{
 #' dm <- as.dist(matrix(runif(100), nrow = 10))
 #' dist.sigma2(dm)
+#' }
 dist.sigma2 <- function(dm) {
   dd <- as.matrix(dm)
   dd[upper.tri(dd)] <- 0
@@ -39,9 +43,11 @@ dist.sigma2 <- function(dm) {
 #' @return Sum of squares matrix.
 #'
 #' @examples
+#' \dontrun{
 #' dm2 <- matrix(runif(100), nrow = 10)
 #' f <- factor(c(rep("A", 5), rep("B", 5)))
 #' dist.ss2(dm2, f)
+#' }
 dist.ss2 <- function(dm2, f) {
   K <- sapply(levels(f), function(lev) f == lev)
   t(K) %*% dm2 %*% K / 2
@@ -58,9 +64,11 @@ dist.ss2 <- function(dm2, f) {
 #' @return A diagonal matrix of group-wise sigma squared values.
 #'
 #' @examples
+#' \dontrun{
 #' dm <- as.dist(matrix(runif(100), nrow = 10))
 #' f <- factor(c(rep("A", 5), rep("B", 5)))
 #' dist.group.sigma2(dm, f)
+#' }
 dist.group.sigma2 <- function(dm, f) {
   diag(dist.ss2(as.matrix(dm)^2, f)) / table(f) / (table(f) - 1)
 }
@@ -76,9 +84,9 @@ dist.group.sigma2 <- function(dm, f) {
 #' @return Cohen's d value if factor has exactly two levels; NULL otherwise.
 #'
 #' @examples
-#' dm <- as.dist(matrix(runif(100), nrow = 10))
+#' \dontrun{dm <- as.dist(matrix(runif(100), nrow = 10))
 #' f <- factor(c(rep("A", 5), rep("B", 5)))
-#' dist.cohen.d(dm, f)
+#' dist.cohen.d(dm, f)}
 dist.cohen.d <- function(dm, f) {
   if (nlevels(f) != 2) {
     return(NULL)
@@ -119,18 +127,20 @@ dist.cohen.d <- function(dm, f) {
 #'          decomposition, it calculates the Euclidean distances between the aPCoA coordinates.
 #'
 #' @examples
+#' \dontrun{
 #' data(iris)
 #' formula <- Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width
 #' dist_matrix <- apcoa.dist(formula, iris)
 #' print(dist_matrix)
+#' }
 #'
 aPCoA.dist = function (formula, data){
-  Terms <- terms(formula, data = data)
+  Terms <- stats::terms(formula, data = data)
   lhs <- formula[[2]]
   lhs <- eval(lhs, data, parent.frame())
   formula[[2]] <- NULL
-  rhs.frame <- model.frame(formula, data, drop.unused.levels = TRUE)
-  rhs <- model.matrix(formula, rhs.frame)
+  rhs.frame <- stats::model.frame(formula, data, drop.unused.levels = TRUE)
+  rhs <- stats::model.matrix(formula, rhs.frame)
   grps <- attr(rhs, "assign")
   qrhs <- qr(rhs)
   rhs <- rhs[, qrhs$pivot, drop = FALSE]
@@ -163,5 +173,5 @@ aPCoA.dist = function (formula, data){
                                 nrow = nrow(eigenE))
   plotMatrix <- plotMatrix[, !is.na(apply(plotMatrix, 2, sum))]
   
-  dist(plotMatrix, method="euclidean")
+  stats::dist(plotMatrix, method="euclidean")
 }

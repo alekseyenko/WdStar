@@ -101,6 +101,7 @@ Tw2.test <- function(dm, f, nrep = 999, strata = NULL) {
 #' @export
 #' @examples
 #' # Example with provided distance matrix
+#' \dontrun{
 #' dm <- as.dist(matrix(runif(100), nrow = 10))
 #' f <- factor(c(rep("A", 5), rep("B", 5)))
 #' WdS.test(dm, f)
@@ -110,6 +111,7 @@ Tw2.test <- function(dm, f, nrep = 999, strata = NULL) {
 #' dm <- as.dist(matrix(runif(100), nrow = 10))
 #' formula <- Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width
 #' WdS.test(dm = dm, f = iris$Species, data = iris, formula = formula)
+#' }
 #'
 WdS.test <- function(dm, f, nrep = 999, strata = NULL, data = NULL, formula = NULL) {
   if (!is.null(data) != !is.null(formula)) {

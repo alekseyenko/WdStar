@@ -101,3 +101,5 @@ WdS <- function(dm, f) {
   h <- sum((1 - ns / s2 / W)^2 / (ns - 1))
   Ws / W / (k - 1) / (1 + (2 * (k - 2) / (k^2 - 1)) * h)
 }
+
+
