@@ -112,27 +112,26 @@ dist.cohen.d <- function(dm, f) {
 #' This function takes in a formula and distance matrix, adjusts for covariates,
 #' performs PCoA, and returns the resuting corrected matrix
 #'
-#' @param formula A typical formula such as Y~ A, but here Y is a dissimilarity distance. 
+#' @param formula A typical formula such as Y~ A, but here Y is a dissimilarity distance.
 #'                The formula has the same requirements as in adonis function of the vegan package.
-#'                
+#'
 #' @param data A dataset with the rownames the same as the rownames in distance.
 #'             This dataset should include both the confounding covariate and the primary covariate.
 #'
-#' @return Returns a distance matrix of class `"dist"` representing the Euclidean distances 
-#'         between the aPCoA coordinates.
+#' @return Returns a distance matrix of class `"dist"` representing the Euclidean distances
 #'
-#' @details The 'aPCoA.dist' function first evaluates the left-hand side (LHS) of the formula 
-#'          within the data frame. Then, it constructs a model matrix from the right-hand side 
-#'          (RHS) of the formula. After performing necessary matrix operations and eigen 
-#'          decomposition, it calculates the Euclidean distances between the aPCoA coordinates.
-#'
+#' @details The 'a.dist' function first evaluates the left-hand side (LHS) of the formula
+#'          within the data frame. Then, it constructs a model matrix from the right-hand side
+#'          (RHS) of the formula. After performing necessary matrix operations and eigen
+#'          decomposition, it calculates the Euclidean distances
+#' @export
 #' @examples
 #' \dontrun{
 #' data(iris)
 #' formula <- Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width
-#' dist_matrix <- apcoa.dist(formula, iris)
+#' dist_matrix <- a.dist(formula, iris)
 #' print(dist_matrix)}
-aPCoA.dist = function (formula, data){
+a.dist = function (formula, data){
   Terms <- stats::terms(formula, data = data)
   lhs <- formula[[2]]
   lhs <- eval(lhs, data, parent.frame())
@@ -146,7 +145,7 @@ aPCoA.dist = function (formula, data){
   grps <- grps[qrhs$pivot][1:qrhs$rank]
   u.grps <- unique(grps)
   nterms <- length(u.grps) - 1
-  if (nterms < 1) 
+  if (nterms < 1)
     stop("right-hand-side of formula has no usable terms")
   dmat <- as.matrix(lhs^2)
   X <- rhs
@@ -155,21 +154,21 @@ aPCoA.dist = function (formula, data){
   X <- as.matrix(X[, -1], nrow = nrow(X))
   H <- X %*% solve(t(X) %*% X) %*% t(X)
   A <- -1/2 * as.matrix(y)^2
-  J <- diag(nrow(X)) - matrix(rep(1/(nrow(X)), length(A)), 
+  J <- diag(nrow(X)) - matrix(rep(1/(nrow(X)), length(A)),
                               nrow = nrow(A))
-  E <- (diag(nrow(H)) - H) %*% J %*% A %*% J %*% (diag(nrow(H)) - 
+  E <- (diag(nrow(H)) - H) %*% J %*% A %*% J %*% (diag(nrow(H)) -
                                                     H)
   rownames(E) <- rownames(data)
   colnames(E) <- rownames(data)
-  
+
   eigen_stat = eigen(E)
   eigenE <- eigen_stat$vectors
   eigenvalue <- eigen_stat$values
-  
+
   rownames(eigenE) <- rownames(data)
-  plotMatrix <- eigenE * matrix(rep(eigenvalue^(1/2), each = nrow(eigenE)), 
+  plotMatrix <- eigenE * matrix(rep(eigenvalue^(1/2), each = nrow(eigenE)),
                                 nrow = nrow(eigenE))
   plotMatrix <- plotMatrix[, !is.na(apply(plotMatrix, 2, sum))]
-  
+
   stats::dist(plotMatrix, method="euclidean")
 }
