@@ -104,6 +104,7 @@ Tw2.test <- function(dm, f, nrep = 999) {
 #'
 #' WdS.test(dm = distance_matrix, f = iris$Species)}
 WdS.test <- function(dm, f, nrep = 999, data = NULL, formula = NULL) {
+
   if (!is.null(data) != !is.null(formula)) {
     stop("Both 'data' and 'formula' must be provided together for a.dist() processing.")
   }
@@ -112,5 +113,36 @@ WdS.test <- function(dm, f, nrep = 999, data = NULL, formula = NULL) {
     dm <- a.dist(formula, data)
   }
 
-  generic.distance.permutation.test(WdS, dm = dm, f = f, nrep = nrep)
+  test.results <- generic.distance.permutation.test(WdS, dm = dm, f = f, nrep = nrep)
+
+  # Name of the hypothesis test.
+  method <- "Multivariate Welch ANOVA"
+
+  # Description of the data
+  data.name <- paste0("Distance matrix with grouping factor ", deparse(substitute(f)))
+
+  # Value of the parameter under the null hypothesis
+  null.value <- 0
+  attr(null.value, "names") <- "expected WdS under H0"
+
+  # Direction of the alternative hypothesis relative to the null value
+  alternative <- "two.sided"
+
+  estimate <- NA
+  attr(estimate, "names") <- NA
+
+  # Statistic value
+  statistic <- test.results$statistic
+  attr(statistic, "names") <- "WdS"
+
+  # P value
+  p.value <- test.results$p.value
+
+  # Creating object of class 'htest'
+  TEST <- list(method = method, data.name = data.name, null.value = null.value, alternative = alternative,
+               statistic = statistic, p.value = p.value, estimate = NA)
+  class(TEST) <- "htest"
+
+  return(TEST)
 }
+
