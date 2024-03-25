@@ -8,7 +8,6 @@
 #' @param dm A distance metric (any arbitrary distance or dissimilarity metric).
 #' @param f A factor variable representing the groups.
 #' @param nrep The number of permutations to conduct. Default is 999.
-#' @param strata An optional stratifying variable for restricted permutation.
 #'
 #' @return A list containing:
 #' \itemize{
@@ -23,19 +22,10 @@
 #' @examples
 #' # TODO: Add examples
 generic.distance.permutation.test <-
-  function(test.statistic, dm, f, nrep = 999, strata = NULL) {
+  function(test.statistic, dm, f, nrep = 999) {
     N <- length(f)
     generate.permutation <- function() {
       f[sample(N)]
-    }
-
-    if (!is.null(strata)) {
-      # map elements of each strata back to their positions in the factor variable
-      strata.map <- order(unlist(tapply(seq_along(f), strata, identity)))
-      generate.permutation <- function() {
-        p <- unlist(tapply(f, strata, sample)) # permute within strata
-        p[strata.map]
-      }
     }
 
     stats <- c(
@@ -59,7 +49,6 @@ generic.distance.permutation.test <-
 #' @param dm A distance metric (any arbitrary distance or dissimilarity metric)
 #' @param f A factor variable representing the groups.
 #' @param nrep The number of permutations to conduct. Default is 999.
-#' @param strata An optional stratifying variable for restricted permutation.
 #'
 #' @return A list containing:
 #' \itemize{
@@ -72,22 +61,21 @@ generic.distance.permutation.test <-
 #' @export
 #' @examples
 #' # TODO: Add examples
-Tw2.test <- function(dm, f, nrep = 999, strata = NULL) {
-  generic.distance.permutation.test(Tw2, dm = dm, f = f, nrep = nrep, strata = strata)
+Tw2.test <- function(dm, f, nrep = 999) {
+  generic.distance.permutation.test(Tw2, dm = dm, f = f, nrep = nrep)
 }
 
-#' Conducts a WdS Distance-Based Permutation Test for k-Group Differences with Optional aPCoA Preprocessing
+#' Conducts a WdS Distance-Based Permutation Test for k-Group Differences with Optional confounder elimination
 #'
 #' This function performs the WdS test statistic for k-group comparison using a given distance matrix.
-#' Optionally, it can preprocess the provided data through the \code{aPCoA.dist} function using a specified
+#' Optionally, it can preprocess the provided data through the \code{a.dist} function using a specified
 #' formula before performing the test, if 'data', 'dm', and 'formula' are provided.
 #'
 #' @param dm A distance matrix (any arbitrary distance or dissimilarity metric).
 #' @param f A factor variable representing the groups.
 #' @param nrep The number of permutations to conduct. Default is 999.
-#' @param strata An optional stratifying variable for restricted permutation.
-#' @param data (optional) Data frame to be used in conjunction with 'formula' and 'dm' for aPCoA preprocessing.
-#' @param formula (optional) A formula to be used with 'data' for aPCoA preprocessing.
+#' @param data (optional) Data frame to be used in conjunction with 'formula' and 'dm' for confounder elimination.
+#' @param formula (optional) A formula to be used with 'data' for confounder elimination
 #'
 #' @return A list containing:
 #' \itemize{
@@ -97,7 +85,7 @@ Tw2.test <- function(dm, f, nrep = 999, strata = NULL) {
 #' }
 #'
 #' @seealso \code{\link{generic.distance.permutation.test}}, \code{\link{Tw2.test}},
-#'          \code{\link{aPCoA.dist}}
+#'          \code{\link{a.dist}}
 #' @export
 #' @examples
 #' # Example with provided distance matrix
@@ -106,21 +94,21 @@ Tw2.test <- function(dm, f, nrep = 999, strata = NULL) {
 #' f <- factor(c(rep("A", 5), rep("B", 5)))
 #' WdS.test(dm, f)
 #'
-#' # Example with optional aPCoA preprocessing
+#' # Example with optional confounder elimination with a.dist()
 #' data(iris)
 #' formula <- Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width
 #'
 #' distance_matrix = dist(iris[2:4], method="euclidean") # Numerical columns only
 #'
 #' WdS.test(dm = distance_matrix, f = iris$Species)}
-WdS.test <- function(dm, f, nrep = 999, strata = NULL, data = NULL, formula = NULL) {
+WdS.test <- function(dm, f, nrep = 999, data = NULL, formula = NULL) {
   if (!is.null(data) != !is.null(formula)) {
-    stop("Both 'data' and 'formula' must be provided together for aPCoA processing.")
+    stop("Both 'data' and 'formula' must be provided together for a.dist() processing.")
   }
 
   if (!is.null(data) && !is.null(formula)) {
-    dm <- aPCoA.dist(formula, data)
+    dm <- a.dist(formula, data)
   }
 
-  generic.distance.permutation.test(WdS, dm = dm, f = f, nrep = nrep, strata = strata)
+  generic.distance.permutation.test(WdS, dm = dm, f = f, nrep = nrep)
 }
