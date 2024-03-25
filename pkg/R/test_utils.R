@@ -28,6 +28,8 @@ generic.distance.permutation.test <-
       f[sample(N)]
     }
 
+    f = as.factor(f)
+
     stats <- c(
       test.statistic(dm, f),
       replicate(
