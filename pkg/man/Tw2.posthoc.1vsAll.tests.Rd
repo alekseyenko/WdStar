@@ -4,7 +4,7 @@
 \alias{Tw2.posthoc.1vsAll.tests}
 \title{Perform 1-vs-All posthoc tests for Tw2 statistic}
 \usage{
-Tw2.posthoc.1vsAll.tests(dm, f, nrep = 999, strata = NULL)
+Tw2.posthoc.1vsAll.tests(dm, f, nrep = 999)
 }
 \arguments{
 \item{dm}{A distance matrix representing the pairwise distances between observations.}
@@ -12,9 +12,6 @@ Tw2.posthoc.1vsAll.tests(dm, f, nrep = 999, strata = NULL)
 \item{f}{A factor variable indicating the group membership of each observation.}
 
 \item{nrep}{Number of permutations to perform (default: 999).}
-
-\item{strata}{A factor variable for stratified permutation. This allows for controlling confounders
-in repeated measures or other hierarchical designs (default: NULL).}
 }
 \value{
 A matrix containing 1-vs-All posthoc test results, with columns for sample sizes,
