@@ -4,7 +4,12 @@ Title: Multivariate Welch ANOVA
 Version: 0.1.0
 Author: Bashir Hamidi, Kristin Wallace, Chenthamarakshan Vasu, Alexander V Alekseyenko 
 Maintainer: The package maintainer <hamidib@musc.edu>
-Description: An R package designed to improve the statistical robustness of microbiome data analyses
+Description: An R package designed to improve the statistical robustness of microbiome data analyses.
+  This method resolves potential for confounding of location and dispersion effects in multivariate
+  analyses by explicitly accounting for the differences in multivariate dispersion in the data tested.
+  The methods based on have general applicability in microbiome and other ‘omics data analyses.
+Depends: 
+    R (>= 3.6.0)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
