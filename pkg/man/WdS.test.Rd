@@ -2,9 +2,9 @@
 % Please edit documentation in R/test_utils.R
 \name{WdS.test}
 \alias{WdS.test}
-\title{Conducts a WdS Distance-Based Permutation Test for k-Group Differences with Optional aPCoA Preprocessing}
+\title{Conducts a WdS Distance-Based Permutation Test for k-Group Differences with Optional confounder elimination}
 \usage{
-WdS.test(dm, f, nrep = 999, strata = NULL, data = NULL, formula = NULL)
+WdS.test(dm, f, nrep = 999, data = NULL, formula = NULL)
 }
 \arguments{
 \item{dm}{A distance matrix (any arbitrary distance or dissimilarity metric).}
@@ -13,11 +13,9 @@ WdS.test(dm, f, nrep = 999, strata = NULL, data = NULL, formula = NULL)
 
 \item{nrep}{The number of permutations to conduct. Default is 999.}
 
-\item{strata}{An optional stratifying variable for restricted permutation.}
+\item{data}{(optional) Data frame to be used in conjunction with 'formula' and 'dm' for confounder elimination.}
 
-\item{data}{(optional) Data frame to be used in conjunction with 'formula' and 'dm' for aPCoA preprocessing.}
-
-\item{formula}{(optional) A formula to be used with 'data' for aPCoA preprocessing.}
+\item{formula}{(optional) A formula to be used with 'data' for confounder elimination}
 }
 \value{
 A list containing:
@@ -29,7 +27,7 @@ A list containing:
 }
 \description{
 This function performs the WdS test statistic for k-group comparison using a given distance matrix.
-Optionally, it can preprocess the provided data through the \code{aPCoA.dist} function using a specified
+Optionally, it can preprocess the provided data through the \code{a.dist} function using a specified
 formula before performing the test, if 'data', 'dm', and 'formula' are provided.
 }
 \examples{
@@ -39,15 +37,15 @@ dm <- as.dist(matrix(runif(100), nrow = 10))
 f <- factor(c(rep("A", 5), rep("B", 5)))
 WdS.test(dm, f)
 
-# Example with optional aPCoA preprocessing
+# Example with optional confounder elimination with a.dist()
 data(iris)
-dm <- as.dist(matrix(runif(100), nrow = 10))
 formula <- Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width
-WdS.test(dm = dm, f = iris$Species, data = iris, formula = formula)
-}
 
+distance_matrix = dist(iris[2:4], method="euclidean") # Numerical columns only
+
+WdS.test(dm = distance_matrix, f = iris$Species)}
 }
 \seealso{
 \code{\link{generic.distance.permutation.test}}, \code{\link{Tw2.test}},
-         \code{\link{aPCoA.dist}}
+         \code{\link{a.dist}}
 }
