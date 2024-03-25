@@ -4,7 +4,7 @@
 \alias{Tw2.test}
 \title{Conducts a Tw2 distance-based permutation test for k-group differences}
 \usage{
-Tw2.test(dm, f, nrep = 999, strata = NULL)
+Tw2.test(dm, f, nrep = 999)
 }
 \arguments{
 \item{dm}{A distance metric (any arbitrary distance or dissimilarity metric)}
@@ -12,8 +12,6 @@ Tw2.test(dm, f, nrep = 999, strata = NULL)
 \item{f}{A factor variable representing the groups.}
 
 \item{nrep}{The number of permutations to conduct. Default is 999.}
-
-\item{strata}{An optional stratifying variable for restricted permutation.}
 }
 \value{
 A list containing:
