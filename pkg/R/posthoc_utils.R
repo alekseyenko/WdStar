@@ -7,8 +7,6 @@
 #' @param dm A distance matrix representing the pairwise distances between observations.
 #' @param f A factor variable indicating the group membership of each observation.
 #' @param nrep Number of permutations to perform (default: 999).
-#' @param strata A factor variable for stratified permutation. This allows for controlling confounders
-#'               in repeated measures or other hierarchical designs (default: NULL).
 #'
 #' @return A matrix containing posthoc test results, with columns for level combinations,
 #'         sample sizes, p-values, Tw2 statistics, and number of permutations.
@@ -24,7 +22,7 @@
 #' @seealso \url{https://github.com/alekseyenko/WdStar}
 #' @export
 
-Tw2.posthoc.tests <- function(dm, f, nrep = 999, strata = NULL) {
+Tw2.posthoc.tests <- function(dm, f, nrep = 999) {
   dd <- as.matrix(dm)
 
   Tw2.subset.test <- function(include.levels) {
@@ -32,7 +30,7 @@ Tw2.posthoc.tests <- function(dm, f, nrep = 999, strata = NULL) {
     c(
       include.levels,
       table(f[subs, drop = TRUE]),
-      Tw2.test(dd[subs, subs], f[subs, drop = TRUE], nrep = nrep, strata = strata[subs])
+      Tw2.test(dd[subs, subs], f[subs, drop = TRUE], nrep = nrep)
     )
   }
 
@@ -51,8 +49,6 @@ Tw2.posthoc.tests <- function(dm, f, nrep = 999, strata = NULL) {
 #' @param dm A distance matrix representing the pairwise distances between observations.
 #' @param f A factor variable indicating the group membership of each observation.
 #' @param nrep Number of permutations to perform (default: 999).
-#' @param strata A factor variable for stratified permutation. This allows for controlling confounders
-#'               in repeated measures or other hierarchical designs (default: NULL).
 #'
 #' @return A matrix containing 1-vs-All posthoc test results, with columns for sample sizes,
 #'         p-values, Tw2 statistics, and number of permutations.
@@ -68,10 +64,10 @@ Tw2.posthoc.tests <- function(dm, f, nrep = 999, strata = NULL) {
 #' @seealso \url{https://github.com/alekseyenko/WdStar}
 #' @export
 
-Tw2.posthoc.1vsAll.tests <- function(dm, f, nrep = 999, strata = NULL) {
+Tw2.posthoc.1vsAll.tests <- function(dm, f, nrep = 999) {
   Tw2.subset.test <- function(level) {
     fs <- factor(f == level)
-    c(table(fs), Tw2.test(dm, fs, nrep = nrep, strata = strata))
+    c(table(fs), Tw2.test(dm, fs, nrep = nrep))
   }
 
   res <- t(sapply(levels(f), Tw2.subset.test))
