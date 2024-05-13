@@ -117,6 +117,7 @@ dist.cohen.d <- function(dm, f) {
 #'
 #' @param data A dataset with the rownames the same as the rownames in distance.
 #'             This dataset should include both the confounding covariate and the primary covariate.
+#'             If not provided, the parent data.frame will be used.
 #'
 #' @return Returns a distance matrix of class `"dist"` representing the Euclidean distances
 #'
@@ -131,7 +132,8 @@ dist.cohen.d <- function(dm, f) {
 #' formula <- Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width
 #' dist_matrix <- a.dist(formula, iris)
 #' print(dist_matrix)}
-a.dist = function (formula, data){
+a.dist = function (formula, data=parent.frame())
+{
   Terms <- stats::terms(formula, data = data)
   lhs <- formula[[2]]
   lhs <- eval(lhs, data, parent.frame())
@@ -149,26 +151,19 @@ a.dist = function (formula, data){
     stop("right-hand-side of formula has no usable terms")
   dmat <- as.matrix(lhs^2)
   X <- rhs
-  y <- lhs
-  X <- X[rownames(dmat), ]
-  X <- as.matrix(X[, -1], nrow = nrow(X))
+  X <- as.matrix(X)
+
   H <- X %*% solve(t(X) %*% X) %*% t(X)
-  A <- -1/2 * as.matrix(y)^2
+  A <- -1/2 * dmat
+
   J <- diag(nrow(X)) - matrix(rep(1/(nrow(X)), length(A)),
                               nrow = nrow(A))
   E <- (diag(nrow(H)) - H) %*% J %*% A %*% J %*% (diag(nrow(H)) -
                                                     H)
   rownames(E) <- rownames(data)
   colnames(E) <- rownames(data)
-
-  eigen_stat = eigen(E)
-  eigenE <- eigen_stat$vectors
-  eigenvalue <- eigen_stat$values
-
-  rownames(eigenE) <- rownames(data)
-  plotMatrix <- eigenE * matrix(rep(eigenvalue^(1/2), each = nrow(eigenE)),
-                                nrow = nrow(eigenE))
-  plotMatrix <- plotMatrix[, !is.na(apply(plotMatrix, 2, sum))]
-
-  stats::dist(plotMatrix, method="euclidean")
+  eig = eigen(E)
+  lambda <- eig$values
+  w <- t(t(eig$vectors) * sqrt(lambda))
+  stats::dist(w)
 }
