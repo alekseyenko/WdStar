@@ -4,7 +4,13 @@
 \alias{generic.distance.permutation.test}
 \title{Conducts a generic distance-based permutation test for k-group differences}
 \usage{
-generic.distance.permutation.test(test.statistic, dm, f, nrep = 999)
+generic.distance.permutation.test(
+  test.statistic,
+  dm,
+  f,
+  nrep = 999,
+  strata = NULL
+)
 }
 \arguments{
 \item{test.statistic}{A function to calculate the test statistic.}
@@ -14,6 +20,8 @@ generic.distance.permutation.test(test.statistic, dm, f, nrep = 999)
 \item{f}{A factor variable representing the groups.}
 
 \item{nrep}{The number of permutations to conduct. Default is 999.}
+
+\item{strata}{A factor variable representing the strata. Default is NULL.}
 }
 \value{
 A list containing:
