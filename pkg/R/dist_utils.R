@@ -118,6 +118,8 @@ dist.cohen.d <- function(dm, f) {
 #' @param data A dataset with the rownames the same as the rownames in distance.
 #'             This dataset should include both the confounding covariate and the primary covariate.
 #'             If not provided, the parent data.frame will be used.
+#' @param tol Tolerance for eigenvalues. This is the cutoff for the eigenvalues 
+#'            to be considered zero. Default is 10^-8.
 #'
 #' @return Returns a distance matrix of class `"dist"` representing the Euclidean distances
 #'
@@ -132,7 +134,7 @@ dist.cohen.d <- function(dm, f) {
 #' formula <- Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width
 #' dist_matrix <- a.dist(formula, iris)
 #' print(dist_matrix)}
-a.dist = function (formula, data=parent.frame())
+a.dist = function (formula, data=parent.frame(), tol=10^-8) 
 {
   Terms <- stats::terms(formula, data = data)
   lhs <- formula[[2]]
@@ -147,23 +149,33 @@ a.dist = function (formula, data=parent.frame())
   grps <- grps[qrhs$pivot][1:qrhs$rank]
   u.grps <- unique(grps)
   nterms <- length(u.grps) - 1
-  if (nterms < 1)
+  if (nterms < 1) 
     stop("right-hand-side of formula has no usable terms")
   dmat <- as.matrix(lhs^2)
   X <- rhs
   X <- as.matrix(X)
-
+  
   H <- X %*% solve(t(X) %*% X) %*% t(X)
   A <- -1/2 * dmat
-
-  J <- diag(nrow(X)) - matrix(rep(1/(nrow(X)), length(A)),
+  
+  J <- diag(nrow(X)) - matrix(rep(1/(nrow(X)), length(A)), 
                               nrow = nrow(A))
-  E <- (diag(nrow(H)) - H) %*% J %*% A %*% J %*% (diag(nrow(H)) -
+  E <- (diag(nrow(H)) - H) %*% J %*% A %*% J %*% (diag(nrow(H)) - 
                                                     H)
   rownames(E) <- rownames(data)
   colnames(E) <- rownames(data)
+  
+  # Correct rounding errors that cause E to be not symmetric
+  E = (E+t(E))/2
+  
   eig = eigen(E)
+  eig$values[abs(eig$values)<tol] = 0
   lambda <- eig$values
+  
+  if (any(lambda<0)) {
+    warning(paste(sum(lambda<0), "out of", length(lambda), "eigenvalues are negative!"))
+  }
+  
   w <- t(t(eig$vectors) * sqrt(lambda))
   stats::dist(w)
 }
