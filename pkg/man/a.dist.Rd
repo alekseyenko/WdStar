@@ -4,7 +4,7 @@
 \alias{a.dist}
 \title{Covariate Adjusted Principal Coordinates Analysis}
 \usage{
-a.dist(formula, data = parent.frame())
+a.dist(formula, data = parent.frame(), tol = 10^-8)
 }
 \arguments{
 \item{formula}{A typical formula such as Y~ A, but here Y is a dissimilarity distance.
@@ -13,6 +13,9 @@ The formula has the same requirements as in adonis function of the vegan package
 \item{data}{A dataset with the rownames the same as the rownames in distance.
 This dataset should include both the confounding covariate and the primary covariate.
 If not provided, the parent data.frame will be used.}
+
+\item{tol}{Tolerance for eigenvalues. This is the cutoff for the eigenvalues 
+to be considered zero. Default is 10^-8.}
 }
 \value{
 Returns a distance matrix of class `"dist"` representing the Euclidean distances
