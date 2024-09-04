@@ -134,7 +134,7 @@ aWdS.test <- function(dm, f, nrep = 999, data = NULL, formula = NULL, strata=NUL
   alternative <- "two.sided"
 
   estimate <- NULL
-  attr(estimate, "names") <- NA
+  attr(estimate, "names") <- NULL
 
   # Statistic value
   statistic <- test.results$statistic
