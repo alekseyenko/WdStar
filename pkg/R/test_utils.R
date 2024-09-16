@@ -133,8 +133,8 @@ aWdS.test <- function(dm, f, nrep = 999, data = NULL, formula = NULL, strata=NUL
   # Direction of the alternative hypothesis relative to the null value
   alternative <- "two.sided"
 
-  estimate <- NULL
-  attr(estimate, "names") <- NULL
+  estimate <- NA
+  attr(estimate, "names") <- NA
 
   # Statistic value
   statistic <- test.results$statistic
