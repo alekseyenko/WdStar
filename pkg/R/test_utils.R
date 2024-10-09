@@ -133,9 +133,6 @@ aWdS.test <- function(dm, f, nrep = 999, data = NULL, formula = NULL, strata=NUL
   # Direction of the alternative hypothesis relative to the null value
   alternative <- "two.sided"
 
-  estimate <- NA
-  attr(estimate, "names") <- NA
-
   # Statistic value
   statistic <- test.results$statistic
   attr(statistic, "names") <- "WdS"
@@ -145,7 +142,7 @@ aWdS.test <- function(dm, f, nrep = 999, data = NULL, formula = NULL, strata=NUL
 
   # Creating object of class 'htest'
   TEST <- list(method = method, data.name = data.name, null.value = null.value, alternative = alternative,
-               statistic = statistic, p.value = p.value, estimate = estimate)
+               statistic = statistic, p.value = p.value)
   class(TEST) <- "htest"
 
   return(TEST)
