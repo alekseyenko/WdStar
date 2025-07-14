@@ -8,7 +8,8 @@
 #' @param dm A distance metric (any arbitrary distance or dissimilarity metric).
 #' @param f A factor variable representing the groups.
 #' @param nrep The number of permutations to conduct. Default is 999.
-#' @param strata A factor variable representing the strata. Default is NULL.
+#' @param strata A factor variable representing the strata. If specified, the
+#'   test will perform stratified permutations. Default is NULL.
 #'
 #' @return A list containing:
 #' \itemize{
@@ -82,7 +83,8 @@ Tw2.test <- function(dm, f, nrep = 999) {
 #' @param nrep The number of permutations to conduct. Default is 999.
 #' @param data (optional) Data frame to be used in conjunction with 'formula' and 'dm' for confounder elimination.
 #' @param formula (optional) A formula to be used with 'data' for confounder elimination
-#' @param strata (optional) A factor variable to be used for stratification in the permutation test.
+#' @param strata (optional) A factor variable to be used for stratification in the permutation test. If specified, the
+#'   test will perform stratified permutations. Default is NULL. 
 #'
 #' @return A list containing:
 #' \itemize{
@@ -155,7 +157,8 @@ aWdS.test <- function(dm, f, nrep = 999, data = NULL, formula = NULL, strata=NUL
 #' @param dm A distance matrix (any arbitrary distance or dissimilarity metric).
 #' @param f A factor variable representing the groups.
 #' @param nrep The number of permutations to conduct. Default is 999.
-#' @param strata (optional) A factor variable to be used for stratified permutation.
+#' @param strata (optional) A factor variable to be used for stratified permutation. If specified, the
+#'   test will perform stratified permutations. Default is NULL. 
 #' @return A list containing:
 #' \itemize{
 #'   \item \code{p.value}: The p-value of the test.
@@ -177,20 +180,20 @@ WdS.test = function(dm, f, nrep=999, strata=NULL){
   test.results <- generic.distance.permutation.test(WdS, dm = dm, f = f, nrep = nrep, strata=strata)
 
   # Name of the hypothesis test.
-  method <- "Multivariate Welch ANOVA"
+  method <- "Distance-based Multivariate Welch ANOVA"
 
   # Description of the data
-  data.name <- paste0("Distance matrix with grouping factor ", deparse(substitute(f)))
+  data.name <- paste0("Distance matrix", deparse(substitute(dm)), " with grouping factor ", deparse(substitute(f)))
 
   # Value of the parameter under the null hypothesis
   null.value <- 0
   attr(null.value, "names") <- "expected WdS under H0"
 
   # Direction of the alternative hypothesis relative to the null value
-  alternative <- "two.sided"
-
-  estimate <- NA
-  attr(estimate, "names") <- NA
+  # alternative <- "two.sided"
+  
+  # Estimate using omega squared
+  # estimate <- (((length(levels(f))-1)*(unname(statistic)-1))/((length(levels(f))-1)*(unname(statistic) - 1) + attr(dm, "Size")))
 
   # Statistic value
   statistic <- test.results$statistic
@@ -200,8 +203,12 @@ WdS.test = function(dm, f, nrep=999, strata=NULL){
   p.value <- test.results$p.value
 
   # Creating object of class 'htest'
-  TEST <- list(method = method, data.name = data.name, null.value = null.value, alternative = alternative,
-               statistic = statistic, p.value = p.value, estimate = NA)
+  TEST <- list(method = method, data.name = data.name, null.value = null.value, #alternative = alternative,
+               statistic = statistic, p.value = p.value, 
+               estimate = c("Omega squared (ω²) effect size" = estimate),
+               parameter = c(c("dfb" = (length(levels(f))-1)),
+                             c("Number of permutations" = nrep)
+              ))
   class(TEST) <- "htest"
 
   return(TEST)
