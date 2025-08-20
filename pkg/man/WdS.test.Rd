@@ -2,7 +2,7 @@
 % Please edit documentation in R/test_utils.R
 \name{WdS.test}
 \alias{WdS.test}
-\title{Conducts the original WdS Distance-Based Permutation Test for k-Group differences}
+\title{Conducts the original WdS distance-based multivariate Welch ANOVA}
 \usage{
 WdS.test(dm, f, nrep = 999, strata = NULL)
 }
@@ -13,22 +13,31 @@ WdS.test(dm, f, nrep = 999, strata = NULL)
 
 \item{nrep}{The number of permutations to conduct. Default is 999.}
 
-\item{strata}{(optional) A factor variable to be used for stratified permutation.}
+\item{strata}{(optional) A factor variable representing strata. If specified,
+the test will perform p-value computations using stratified permutation.
+Default is NULL.}
 }
 \value{
 A list containing:
 \itemize{
-  \item \code{p.value}: The p-value of the test.
-  \item \code{statistic}: The observed test statistic.
+  \item \code{method}: The name of the method used.
+  \item \code{data.name}: A string containing the name of input data.
+  \item \code{statistic}: The observed WdS test statistic.
+  \item \code{estimate}: The Omega squared (ω²) effect size estimate.
   \item \code{nrep}: The number of permutations performed.
+  \item \code{p.value}: The p-value of the test.
+  \item \code{parameter}: a list of 2 or 3 containing Strata (optional),
+  between degrees of freedom (dfb), and number of permutations performed
+  (nrep).
 }
 }
 \description{
-This function performs the WdS test statistic for k-group comparison using a given distance matrix.
+This function performs the WdS test statistic for k-group differences comparison using a given distance matrix.
 }
 \examples{
+{
 # Example with provided distance matrix
-\dontrun{
+
 dm <- as.dist(matrix(runif(100), nrow = 10))
 f <- factor(c(rep("A", 5), rep("B", 5)))
 WdS.test(dm, f)

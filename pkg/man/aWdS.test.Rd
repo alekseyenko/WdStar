@@ -2,9 +2,16 @@
 % Please edit documentation in R/test_utils.R
 \name{aWdS.test}
 \alias{aWdS.test}
-\title{Conducts an adjusted WdS Distance-Based Permutation Test for k-Group differences with optional confounder elimination}
+\title{Conducts an adjusted WdS distance-based multivariate Welch ANOVA with optional confounder elimination}
 \usage{
-aWdS.test(dm, f, nrep = 999, data = NULL, formula = NULL, strata = NULL)
+aWdS.test(
+  dm,
+  f,
+  nrep = 999,
+  strata = NULL,
+  formula = NULL,
+  formula_data = parent.frame()
+)
 }
 \arguments{
 \item{dm}{A distance matrix (any arbitrary distance or dissimilarity metric).}
@@ -13,18 +20,26 @@ aWdS.test(dm, f, nrep = 999, data = NULL, formula = NULL, strata = NULL)
 
 \item{nrep}{The number of permutations to conduct. Default is 999.}
 
-\item{data}{(optional) Data frame to be used in conjunction with 'formula' and 'dm' for confounder elimination.}
+\item{strata}{(optional) A factor variable representing strata. If specified,
+the test will perform p-value computations using stratified permutation.
+Default is NULL.}
 
-\item{formula}{(optional) A formula to be used with 'data' for confounder elimination}
+\item{formula}{(optional) A right-hand side ONLY formula to be used with 'data' for confounder adjustment of WdS statistic, Omega squared (ω²) effect size estimate, and p-value.}
 
-\item{strata}{(optional) A factor variable to be used for stratification in the permutation test.}
+\item{formula_data}{(optional) A data frame to be used in conjunction with 'formula' for confounder adjustment.}
 }
 \value{
 A list containing:
 \itemize{
-  \item \code{p.value}: The p-value of the test.
-  \item \code{statistic}: The observed test statistic.
+  \item \code{method}: The name of the method used.
+  \item \code{data.name}: A string containing the name of input data.
+  \item \code{statistic}: The observed WdS test statistic.
+  \item \code{estimate}: The Omega squared (ω²) effect size estimate.
   \item \code{nrep}: The number of permutations performed.
+  \item \code{p.value}: The p-value of the test.
+  \item \code{parameter}: a list of 2-4 containing strata (optional), 
+  adjustment formula (optional), between degrees of freedom (dfb), and number of permutations performed
+  (nrep).
 }
 }
 \description{
@@ -32,20 +47,22 @@ This function performs the WdS test statistic for k-group comparison using a giv
 Optionally, it can preprocess the provided data through the \code{a.dist} function using a specified
 formula before performing the test, if 'data', 'dm', and 'formula' are provided.
 }
+\details{
+If optional adjustment parameters are provided, it projects matrices to remove the effect of covariate.
+}
 \examples{
 # Example with provided distance matrix
-\dontrun{
 dm <- as.dist(matrix(runif(100), nrow = 10))
 f <- factor(c(rep("A", 5), rep("B", 5)))
 aWdS.test(dm, f)
 
 # Example with optional confounder elimination with a.dist()
 data(iris)
-formula <- Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width
+formula <- ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width
 
-distance_matrix = dist(iris[2:4], method="euclidean") # Numerical columns only
+dm = dist(iris[2:4], method="euclidean") 
 
-aWdS.test(dm = distance_matrix, f = iris$Species)}
+aWdS.test(dm = dm, f = iris$Species, formula=formula)
 }
 \seealso{
 \code{\link{generic.distance.permutation.test}}, \code{\link{Tw2.test}},

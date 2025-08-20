@@ -4,15 +4,19 @@
 \alias{a.dist}
 \title{Covariate Adjusted Principal Coordinates Analysis}
 \usage{
-a.dist(formula, data = parent.frame(), tol = 10^-8)
+a.dist(dm, formula, formula_data = parent.frame(), tol = 10^-8)
 }
 \arguments{
-\item{formula}{A typical formula such as Y~ A, but here Y is a dissimilarity distance.
+\item{dm}{A distance matrix (any arbitrary distance or dissimilarity metric).}
+
+\item{formula}{Only the right hand side of a typical formula such as Y~ A is necessary.
 The formula has the same requirements as in adonis function of the vegan package.}
 
-\item{data}{A dataset with the rownames the same as the rownames in distance.
-This dataset should include both the confounding covariate and the primary covariate.
-If not provided, the parent data.frame will be used.}
+\item{formula_data}{A dataset which contains the variables specified in formula. 
+It must be in a data.frame format with the rownames the same as the 
+rownames in distance matrix dm. This dataset should include both the 
+confounding covariate and the primary covariate.
+ If not provided, the parent data.frame will be used.}
 
 \item{tol}{Tolerance for eigenvalues. This is the cutoff for the eigenvalues 
 to be considered zero. Default is 10^-8.}
@@ -25,15 +29,16 @@ This function takes in a formula and distance matrix, adjusts for covariates,
 performs PCoA, and returns the resuting corrected matrix
 }
 \details{
-The 'a.dist' function first evaluates the left-hand side (LHS) of the formula
-         within the data frame. Then, it constructs a model matrix from the right-hand side
-         (RHS) of the formula. After performing necessary matrix operations and eigen
-         decomposition, it calculates the Euclidean distances
+The 'a.dist' function only requires a right-hand side of the formula. 
+         Instead of the left-hand side, it uses the dissimilarity distance matrix dm.
+         The function constructs a model matrix from the right-hand side (RHS) 
+         of the formula. After performing necessary matrix operations and eigen
+         decomposition, it calculates the Euclidean distances. It preserves the 
+         labels of the input dm.
 }
 \examples{
-\dontrun{
 data(iris)
 formula <- Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width
 dist_matrix <- a.dist(formula, iris)
-print(dist_matrix)}
+print(dist_matrix)
 }
