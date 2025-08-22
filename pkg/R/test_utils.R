@@ -18,7 +18,7 @@
 #' }
 #'
 #' @references Hamidi, Bashir, et al. "$ W_ {d}^{*} $-test: robust distance-based multivariate analysis of variance." Microbiome 7.1 (2019): 1-9.
-#' @seealso \code{\link{Tw2.test}}, \code{\link{WdS.test}}
+#' @seealso \code{\link{Tw2.test}}, \code{\link{WdS.test}}, \code{\link{aWdS.test}}
 #' @export
 #' @examples
 #' # TODO: Add examples
@@ -63,7 +63,7 @@ generic.distance.permutation.test =
 #'   \item \code{nrep}: The number of permutations performed
 #' }
 #'
-#' @seealso \code{\link{generic.distance.permutation.test}}, \code{\link{WdS.test}}
+#' @seealso \code{\link{aWdS.test}}, \code{\link{WdS.test}}, \code{\link{generic.distance.permutation.test}} 
 #' @export
 #' @examples
 #' # TODO: Add examples
@@ -71,11 +71,14 @@ Tw2.test <- function(dm, f, nrep = 999) {
   generic.distance.permutation.test(Tw2, dm = dm, f = f, nrep = nrep)
 }
 
-#' Conducts an adjusted WdS distance-based multivariate Welch ANOVA with optional confounder elimination
-#'
+#' Conducts an adjusted WdS distance-based multivariate Welch ANOVA using optional confounder elimination
+#' 
+#' 'aWdS.test()' defaults to an unadjusted Wds.test() if the optional parameters 'formula' and 'formula_data' are not provided. 
+#' Users may choose to pre-adjust their 'dm' before using this function or choose to use make adjustments within the function. 
+#' 
 #' This function performs the WdS test statistic for k-group comparison using a given distance matrix.
 #' Optionally, it can preprocess the provided data through the \code{a.dist} function using a specified
-#' formula before performing the test, if 'data', 'dm', and 'formula' are provided.  
+#' formula before performing the test, if 'dm', 'formula', and 'formula_data' are provided.  
 #' 
 #' If optional adjustment parameters are provided, it projects matrices to remove the effect of covariate. 
 #'
@@ -87,8 +90,11 @@ Tw2.test <- function(dm, f, nrep = 999) {
 #' @param strata (optional) A factor variable representing strata. If specified,
 #'   the test will perform p-value computations using stratified permutation.
 #'   Default is NULL.
-#' @param formula (optional) A right-hand side ONLY formula to be used with 'data' for confounder adjustment of WdS statistic, Omega squared (ω²) effect size estimate, and p-value. 
-#' @param formula_data (optional) A data frame to be used in conjunction with 'formula' for confounder adjustment.
+#' @param formula (optional) A right-hand side ONLY formula to be used with 
+#' 'formula_data' for confounder adjustment of WdS statistic, Omega squared (ω²)
+#'  effect size estimate, and p-value. Default is NULL 
+#' @param formula_data (optional) A data frame to be used in conjunction with 
+#' 'formula' for confounder adjustment. Default is parent.frame()
 #' @return A list containing:
 #' \itemize{
 #'   \item \code{method}: The name of the method used.
@@ -102,22 +108,29 @@ Tw2.test <- function(dm, f, nrep = 999) {
 #'   (nrep).
 #' }
 #'
-#' @seealso \code{\link{generic.distance.permutation.test}}, \code{\link{Tw2.test}},
+#' @seealso \code{\link{WdS.test}}, \code{\link{generic.distance.permutation.test}}, \code{\link{Tw2.test}},
 #'          \code{\link{a.dist}}
 #' @export
 #' @examples
 #' # Example with provided distance matrix
-#' dm <- as.dist(matrix(runif(100), nrow = 10))
+#' # Although this function is the adjusted 'aWdS.test()', it will default to the
+#' # unadjusted version 'WdS.test()' in cases where 'formula' and 'formula_data' 
+#' # are not provided. Users may choose to pre-adjust their 'dm' before using this 
+#' # function or choose to use make adjustments within the function.  
+#' #' dm <- as.dist(matrix(runif(100), nrow = 10))
 #' f <- factor(c(rep("A", 5), rep("B", 5)))
 #' aWdS.test(dm, f)
+
+#' 
 #'
 #' # Example with optional confounder elimination with a.dist()
 #' data(iris)
 #' formula <- ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width
-#'
+#' # Please note only a right-hand side formula is used
+#' 
 #' dm = dist(iris[2:4], method="euclidean") 
 #'
-#' aWdS.test(dm = dm, f = iris$Species, formula=formula)
+#' aWdS.test(dm = dm, f = iris$Species, formula=formula, formula_data = iris)
 aWdS.test <- function(dm, f, nrep = 999, strata=NULL, formula = NULL, formula_data = parent.frame()) {
   
 #   if (!is.null(formula) != !is.null(formula_data)) { #in certain cases didn't trigger error when formula was provided but data wasn't. 
@@ -213,7 +226,7 @@ aWdS.test <- function(dm, f, nrep = 999, strata=NULL, formula = NULL, formula_da
 #'   (nrep).
 #' }
 #'
-#' @seealso \code{\link{generic.distance.permutation.test}}, \code{\link{Tw2.test}}
+#' @seealso \code{\link{aWdS.test}}, \code{\link{generic.distance.permutation.test}}, \code{\link{Tw2.test}}
 #' @export
 #' @examples{
 #' # Example with provided distance matrix
@@ -253,6 +266,7 @@ WdS.test <- function(dm, f, nrep=999, strata=NULL){
   estimate <- (((length(levels(f))-1)*(unname(statistic)-1))/((length(levels(f))-1)*(unname(statistic) - 1) + attr(dm, "Size")))
   attr(estimate, "names") <- "Omega squared (ω²) effect size"
 
+  
   # P value
   p.value <- test.results$p.value
 
