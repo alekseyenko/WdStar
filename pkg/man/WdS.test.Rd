@@ -44,5 +44,5 @@ WdS.test(dm, f)
 }
 }
 \seealso{
-\code{\link{generic.distance.permutation.test}}, \code{\link{Tw2.test}}
+\code{\link{aWdS.test}}, \code{\link{generic.distance.permutation.test}}, \code{\link{Tw2.test}}
 }
