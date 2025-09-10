@@ -1,22 +1,25 @@
 Package: WdStar
 Type: Package
 Title: Distance-based Multivariate Welch ANOVA
-Version: 2.2.0
+Version: 2.3.0
 Author: Bashir Hamidi, Kristin Wallace, Chenthamarakshan Vasu, Ivan Korostenskij, Alexander V Alekseyenko 
-Maintainer: The package maintainer <hamidib@musc.edu>
 Description: An R package designed to improve the statistical robustness of microbiome data analyses.
   This method resolves potential for confounding of location and dispersion effects in multivariate
   analyses by explicitly accounting for the differences in multivariate dispersion in the data tested.
   The methods based on have general applicability in microbiome and other ‘omics data analyses.
+License: MIT + file LICENSE  
+URL: https://github.com/alekseyenko/WdStar  
+BugReports: https://github.com/alekseyenko/WdStar  
+Maintainer: Bashir Mark Hamidi <hamidib@musc.edu>
 Depends: 
     R (>= 3.6.0)
-License: MIT + file LICENSE
-Encoding: UTF-8
-LazyData: true
-RoxygenNote: 7.3.2
-Suggests: 
-    testthat (>= 3.0.0)
-Config/testthat/edition: 3
 Imports: 
     utils,
     stats
+Suggests: 
+    testthat (>= 3.0.0)
+Encoding: UTF-8
+Config/testthat/edition: 3
+LazyData: true
+RoxygenNote: 7.3.2  
+
