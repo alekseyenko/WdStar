@@ -10,4 +10,5 @@ In this version we update exisiting funtions and introduce new ones including:
   - Addition of between degrees of freedom
   - Changes of parameters within the a.dist() function to not request duplicate objects
   - error and datatype handling improvements
-  - improvements to test outputs including WdS.test() 
+  - improvements to test outputs including WdS.test()
+  - Updated examples for a.dist(), WdS.test(), and aWdS.test()
