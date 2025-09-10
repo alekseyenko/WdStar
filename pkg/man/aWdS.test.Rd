@@ -57,24 +57,30 @@ formula before performing the test, if 'dm', 'formula', and 'formula_data' are p
 If optional adjustment parameters are provided, it projects matrices to remove the effect of covariate.
 }
 \examples{
-# Example with provided distance matrix
-# Although this function is the adjusted 'aWdS.test()', it will default to the
-# unadjusted version 'WdS.test()' in cases where 'formula' and 'formula_data' 
-# are not provided. Users may choose to pre-adjust their 'dm' before using this 
-# function or choose to use make adjustments within the function.  
-#' dm <- as.dist(matrix(runif(100), nrow = 10))
-f <- factor(c(rep("A", 5), rep("B", 5)))
-aWdS.test(dm, f)
+data(mtcars)
 
+# The outcome could be a single variable or multiple variables (such as multidimensional omics data).  
+## This is an example with a single variable:  
+dm <- dist(mtcars$mpg, method="euclidean")
 
-# Example with optional confounder elimination with a.dist()
-data(iris)
-formula <- ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width
-# Please note only a right-hand side formula is used
+## This is an example with multiple variables:  
+dm <- dist(mtcars[1:3], method="euclidean") 
 
-dm = dist(iris[2:4], method="euclidean") 
+f <- factor(mtcars$gear)
 
-aWdS.test(dm = dm, f = iris$Species, formula=formula, formula_data = iris)
+# Adjusted example using *'aWdS.test()'*  
+## Right-hand side adjustment formula. Note that you may use any data type including factor, character, integer, and numeric.  
+formula <- ~ wt + as.factor(am) 
+aWdS.test(dm=dm, f=f, formula=formula, formula_data=mtcars)
+# Adjusted example using *'WdS.test()'*  
+## Create the adjusted distance matrix 'a.dm'  
+a.dm <- a.dist(dm=dm, formula=formula, formula_data=mtcars)
+# Perform adjusted test with 'a.dm'  
+WdS.test(dm=a.dm, f=f)
+
+# Unadjusted example (equivalent to 'WdS.test()')  
+aWdS.test(dm=dm, f=f)
+
 }
 \seealso{
 \code{\link{WdS.test}}, \code{\link{generic.distance.permutation.test}}, \code{\link{Tw2.test}},

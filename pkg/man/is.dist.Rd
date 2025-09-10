@@ -16,8 +16,8 @@ Logical indicating whether the object is a distance matrix.
 This function checks whether the given object belongs to class 'dist'.
 }
 \examples{
-\dontrun{
+
 is.dist(as.dist(matrix(1:4, nrow = 2)))
 is.dist(matrix(1:4, nrow = 2))
-}
+
 }

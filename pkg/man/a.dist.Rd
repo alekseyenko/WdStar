@@ -10,11 +10,11 @@ a.dist(dm, formula, formula_data = parent.frame(), tol = 10^-8)
 \item{dm}{A distance matrix (any arbitrary distance or dissimilarity metric).}
 
 \item{formula}{Only the right hand side of a typical formula such as Y~ A is necessary.
-The formula has the same requirements as in adonis function of the vegan package.}
+The formula has the same requirements as in vegan::adonis() function.}
 
 \item{formula_data}{A dataset which contains the variables specified in formula. 
-It must be in a data.frame format with the rownames the same as the 
-rownames in distance matrix dm. This dataset should include both the 
+It must be in a data.frame format with the row names the same as the 
+row names in distance matrix dm. This dataset should include both the 
 confounding covariate and the primary covariate.
  If not provided, the parent data.frame will be used.}
 
@@ -26,19 +26,32 @@ Returns a distance matrix of class `"dist"` representing the Euclidean distances
 }
 \description{
 This function takes in a formula and distance matrix, adjusts for covariates,
-performs PCoA, and returns the resuting corrected matrix
+performs PCoA, and returns the resulting corrected matrix
 }
 \details{
 The 'a.dist' function only requires a right-hand side of the formula. 
          Instead of the left-hand side, it uses the dissimilarity distance matrix dm.
          The function constructs a model matrix from the right-hand side (RHS) 
-         of the formula. After performing necessary matrix operations and eigen
-         decomposition, it calculates the Euclidean distances. It preserves the 
+         of the formula. After performing necessary matrix operations and 
+         eigen-decomposition, it calculates the Euclidean distances. It preserves the 
          labels of the input dm.
 }
 \examples{
-data(iris)
-formula <- Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width
-dist_matrix <- a.dist(formula, iris)
-print(dist_matrix)
+data(mtcars)
+
+# The outcome could be a single variable or multiple variables (such as multidimensional omics data). 
+## This is an example with a single variable:
+dm <- dist(mtcars$mpg, method="euclidean")
+
+## This is an example with multiple variables:
+dm <- dist(mtcars[1:3], method="euclidean") 
+
+# Right-hand side adjustment formula. Note that you may use any data type 
+# including factor, character, integer, and numeric.
+formula <- ~ as.factor(gear) + as.integer(hp) + wt
+
+#' # Create the adjusted distance matrix 'a.dm'
+a.dm <- a.dist(dm=dm, formula=formula, formula_data=mtcars)
+a.dm
+
 }
