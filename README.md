@@ -49,7 +49,7 @@ Source installation of `WdStar` R package is available directly from GitHub usin
 ```R
 install.packages("devtools")
 library("devtools")
-devtools::install_github("alekseyenko/WdStar/pkg", force=T)
+devtools::install_github("alekseyenko/WdStar", force=T)
 library(WdStar)
 packageVersion("WdStar")
 ```
