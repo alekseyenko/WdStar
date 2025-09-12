@@ -4,7 +4,7 @@
 
 ## September 2025 Updates:
 In version 2.3.0 we update exisiting functions and introduce new ones. Changes include:
-  - Packaged to allows [installation of R package using `devtools::install_github()`](./README.md#installation)
+  - Allows [installation of R package using `devtools::install_github()`](https://github.com/bashirhamidi/WdStar-sandbox/tree/sandbox?tab=readme-ov-file#installation)
   - Package versioning  
   - Addition of `aWdS.test()` to peform covariate-adjusted tests 
   - Addition of effect-size using omega squared
@@ -30,22 +30,22 @@ In version 2.3.0 we update exisiting functions and introduce new ones. Changes i
 >- compatible with any data type.
 
 
-## Peer-Reviewed Publications on the $W_d^*$-test Family
-$aW_d^*$: preprint title
+## Peer-Reviewed Publications on the $W_d^*$-test Family  
+**$aW_d^*$: preprint title**  
 - Publication authors: [preprint doi link](https://doi.org/10.1093/bioinformatics/btw524)
 - [Code repository](https://github.com/alekseyenko/WdStar/tree/master/publications/Bioinformatics%20(2025))
 
-$W_d^*$-test: robust distance-based multivariate analysis of variance 
+**$W_d^*$-test: robust distance-based multivariate analysis of variance**  
 - [Hamidi B, Wallace K, Vasu C, & Alekseyenko AV. *Microbiome.* 2019.](https://doi.org/10.1186/s40168-019-0659-9)
 - [Code repository](https://github.com/alekseyenko/WdStar/tree/master/publications/Hamidi%20et%20al.%20Microbiome%20(2019))
 
 
-$T_w^2$: multivariate Welch t-test on distances
+**$T_w^2$: multivariate Welch t-test on distances**  
 - [Alekseyenko AV. Multivariate Welch t-test on distances. *Bioinformatics*. 2016.](https://doi.org/10.1093/bioinformatics/btw524) 
 - [Code repository](https://github.com/alekseyenko/Tw2)
 
 ## Installation  
-Source installation of `WdStar` R package is available directly from GitHub using devtools for R 3.4 or later:
+Source installation of `WdStar` R package is available directly from GitHub using `devtools` for R 3.4 or later:
 ```R
 install.packages("devtools")
 library("devtools")
@@ -55,9 +55,12 @@ packageVersion("WdStar")
 ```
 
 
-## Quick Start
+## Quick Start  
 
-We will use the `mtcars` dataset and look at the the effect of `gears` on `mpg`, `cyl`, and `disp` (first three variables of the dataset):   
+For detailed and complex examples please refer to [our publication repositories](https://github.com/bashirhamidi/WdStar-sandbox/tree/sandbox?tab=readme-ov-file#peer-reviewed-publications-on-the-w_d-test-family), which contain Markdown files with application datasets and code.
+
+
+The following is a simple example using the `mtcars` dataset to assess the effect of `gears` on `mpg`, `cyl`, and `disp` (first three variables of the dataset):   
 
 ```R
 # Load dataset
@@ -88,9 +91,6 @@ Further examples are provided in the package documentation and may be accessed b
 ?aWdS.test
 ?a.dist
 ```
-
-For more detailed and complex examples please refer to [our publication repositories](./README.md#peer-reviewed-articles-on), which contain Markdown files with application datasets and code.
-
 
 ## Feature Requests and Bugs
 We welcome feature requests and bug reports and kindly ask you to submit them via [our GitHub issue tracker.](https://github.com/alekseyenko/WdStar/issues)
