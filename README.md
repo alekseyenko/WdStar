@@ -2,35 +2,35 @@
 
 # $W_d^*$: distance-based multivariate analysis of variance for multivariate data
 
-## 2025 Updates
-In version 2.3.0 we update exisiting funtions and introduce new ones including:
-  - allows installation of package using `devtools::install_github("alekseyenko/WdStar", ref="sandbox", subdir = "pkg", force=T)`
+## September 2025 Updates:
+In version 2.3.0 we update exisiting functions and introduce new ones. Changes include:
+  - Packaged to allows [installation of R package using `devtools::install_github()`](./README.md#installation)
   - Package versioning  
   - Addition of `aWdS.test()` to peform covariate-adjusted tests 
-  - Addition of omega squared estimate in output
+  - Addition of effect-size using omega squared
   - Addition of between degrees of freedom
   - Changes of parameters within the `a.dist()` function to not request duplicate objects
-  - error and datatype handling improvements
-  - improvements to test outputs including `WdS.test()`
-  - Updated examples for `a.dist()`, `WdS.test()`, and `aWdS.test()`
+  - Error and datatype handling improvements
+  - Improvements to outputs including `a.dist()`,`WdS.test()`, and `aWdS.test()`
+  - Revamped help files and updated examples for `a.dist()`, `WdS.test()`, and `aWdS.test()`
 
 
 ## Introduction 
 
-`WdStar` is an R package for $W_d^*$, a more robust approach based on Welch's MANOVA designed to improve the statistical robustness of multivariate data analyses. 
+`WdStar` is an R package for $W_d^*$, a method for multivariate analysis of variance based on Welch's MANOVA designed to address challenges of existing methods including PERMANOVA.
 - Are you using PERMANOVA and concerned about how heteroscedasticity and unbalanced sample sizes may affect your analyses? 
 - Have you ever questioned the reliability of community-wide microbiome analysis results?
 - Are you looking for a global test for your multivariate dataset?
 
->`WdStar` addresses these concerns by providing a more robust method for multivariate analysis of variance.  
+>**$W_d^*$ addresses these concerns and is**
+>- robust to heteroscedasticity; 
+>- handles multi-level factors and stratification;
+>- allows for multiple post hoc testing scenarios;
+>- allows for adjustment of covariates; and
+>- compatible with any data type.
 
-**Our methods:** 
-- are robust to heteroscedasticity; 
-- can handle multi-level factors and stratification;
-- allow for multiple post hoc testing scenarios; and
-- allow for adjustment of covariates.
 
-## Peer-Reviewed Articles on $W_d^*$
+## Peer-Reviewed Publications on the $W_d^*$-test Family
 $aW_d^*$: preprint title
 - Publication authors: [preprint doi link](https://doi.org/10.1093/bioinformatics/btw524)
 - [Code repository](https://github.com/alekseyenko/WdStar/tree/master/publications/Bioinformatics%20(2025))
@@ -45,7 +45,7 @@ $T_w^2$: multivariate Welch t-test on distances
 - [Code repository](https://github.com/alekseyenko/Tw2)
 
 ## Installation  
-Source installation of R package is available directly from GitHub using devtools:
+Source installation of `WdStar` R package is available directly from GitHub using devtools for R 3.4 or later:
 ```R
 install.packages("devtools")
 library("devtools")
@@ -71,7 +71,7 @@ dm <- dist(mtcars$mpg, method="euclidean")
 ### This is an example with multiple variables (`mpg`, `cyl`, and `disp`):
 dm <- dist(mtcars[1:3], method="euclidean") 
 
-# Independent variable
+# Independent variable. You could use multiple variables here too.
 f <- factor(mtcars$gear)
 
 # Perform multivariate test  
@@ -82,13 +82,14 @@ strata <- factor(mtcars$vs)
 WdS.test(dm=dm, f=f, strata=strata)
 ```
 
-Further example codes are provided in the package documentation and may be accessed by running the following commands:
+Further examples are provided in the package documentation and may be accessed by running the following commands:
 ```R
 ?WdS.test #OR
 ?aWdS.test
+?a.dist
 ```
 
-Additionally [our publication repositories](./README.md#peer-reviewed-articles-on) contain Markdown files with application datasets and code.
+For more detailed and complex examples please refer to [our publication repositories](./README.md#peer-reviewed-articles-on), which contain Markdown files with application datasets and code.
 
 
 ## Feature Requests and Bugs
