@@ -19,7 +19,9 @@ This function calculates the Cohen's d statistic for a distance matrix,
 assuming two levels in the factor variable.
 }
 \examples{
-\dontrun{dm <- as.dist(matrix(runif(100), nrow = 10))
+
+dm <- as.dist(matrix(runif(100), nrow = 10))
 f <- factor(c(rep("A", 5), rep("B", 5)))
-dist.cohen.d(dm, f)}
+dist.cohen.d(dm, f)
+
 }

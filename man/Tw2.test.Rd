@@ -29,5 +29,5 @@ specifically designed to use the Tw2 test statistic for k-group comparison.
 # TODO: Add examples
 }
 \seealso{
-\code{\link{generic.distance.permutation.test}}, \code{\link{WdS.test}}
+\code{\link{aWdS.test}}, \code{\link{WdS.test}}, \code{\link{generic.distance.permutation.test}}
 }

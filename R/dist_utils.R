@@ -7,10 +7,10 @@
 #' @return Logical indicating whether the object is a distance matrix.
 #'
 #' @examples
-#' \dontrun{
+#' 
 #' is.dist(as.dist(matrix(1:4, nrow = 2)))
 #' is.dist(matrix(1:4, nrow = 2))
-#' }
+#' 
 is.dist <- function(x) any(class(x) == "dist")
 
 #' Calculate Sigma Squared for Distance Matrix
@@ -22,10 +22,10 @@ is.dist <- function(x) any(class(x) == "dist")
 #' @return Sigma squared value.
 #'
 #' @examples
-#' \dontrun{
+#' 
 #' dm <- as.dist(matrix(runif(100), nrow = 10))
 #' dist.sigma2(dm)
-#' }
+#' 
 dist.sigma2 <- function(dm) {
   dd <- as.matrix(dm)
   dd[upper.tri(dd)] <- 0
@@ -43,11 +43,11 @@ dist.sigma2 <- function(dm) {
 #' @return Sum of squares matrix.
 #'
 #' @examples
-#' \dontrun{
-#' dm2 <- matrix(runif(100), nrow = 10)
+#' 
+#' dm <- matrix(runif(100), nrow = 10)
 #' f <- factor(c(rep("A", 5), rep("B", 5)))
-#' dist.ss2(dm2, f)
-#' }
+#' dist.ss2(dm, f)
+#' 
 dist.ss2 <- function(dm2, f) {
   K <- sapply(levels(f), function(lev) f == lev)
   t(K) %*% dm2 %*% K / 2
@@ -84,9 +84,11 @@ dist.group.sigma2 <- function(dm, f) {
 #' @return Cohen's d value if factor has exactly two levels; NULL otherwise.
 #'
 #' @examples
-#' \dontrun{dm <- as.dist(matrix(runif(100), nrow = 10))
+#' 
+#' dm <- as.dist(matrix(runif(100), nrow = 10))
 #' f <- factor(c(rep("A", 5), rep("B", 5)))
-#' dist.cohen.d(dm, f)}
+#' dist.cohen.d(dm, f)
+#' 
 dist.cohen.d <- function(dm, f) {
   if (nlevels(f) != 2) {
     return(NULL)
@@ -110,40 +112,60 @@ dist.cohen.d <- function(dm, f) {
 #' Covariate Adjusted Principal Coordinates Analysis
 #'
 #' This function takes in a formula and distance matrix, adjusts for covariates,
-#' performs PCoA, and returns the resuting corrected matrix
+#' performs PCoA, and returns the resulting corrected matrix
+#' @param dm A distance matrix (any arbitrary distance or dissimilarity metric).
 #'
-#' @param formula A typical formula such as Y~ A, but here Y is a dissimilarity distance.
-#'                The formula has the same requirements as in adonis function of the vegan package.
+#' @param formula Only the right hand side of a typical formula such as Y~ A is necessary.
+#'                The formula has the same requirements as in vegan::adonis() function.
 #'
-#' @param data A dataset with the rownames the same as the rownames in distance.
-#'             This dataset should include both the confounding covariate and the primary covariate.
+#' @param formula_data A dataset which contains the variables specified in formula. 
+#'            It must be in a data.frame format with the row names the same as the 
+#'            row names in distance matrix dm. This dataset should include both the 
+#'            confounding covariate and the primary covariate.
 #'             If not provided, the parent data.frame will be used.
 #' @param tol Tolerance for eigenvalues. This is the cutoff for the eigenvalues 
 #'            to be considered zero. Default is 10^-8.
 #'
 #' @return Returns a distance matrix of class `"dist"` representing the Euclidean distances
 #'
-#' @details The 'a.dist' function first evaluates the left-hand side (LHS) of the formula
-#'          within the data frame. Then, it constructs a model matrix from the right-hand side
-#'          (RHS) of the formula. After performing necessary matrix operations and eigen
-#'          decomposition, it calculates the Euclidean distances
+#' @details The 'a.dist' function only requires a right-hand side of the formula. 
+#'          Instead of the left-hand side, it uses the dissimilarity distance matrix dm.
+#'          The function constructs a model matrix from the right-hand side (RHS) 
+#'          of the formula. After performing necessary matrix operations and 
+#'          eigen-decomposition, it calculates the Euclidean distances. It preserves the 
+#'          labels of the input dm. 
 #' @export
 #' @examples
-#' \dontrun{
-#' data(iris)
-#' formula <- Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width
-#' dist_matrix <- a.dist(formula, iris)
-#' print(dist_matrix)}
-a.dist = function (formula, data=parent.frame(), tol=10^-8) 
+#' data(mtcars)
+#' 
+#' # The outcome could be a single variable or multiple variables (such as multidimensional omics data). 
+
+#' ## This is an example with a single variable:
+#' dm <- dist(mtcars$mpg, method="euclidean")
+#' 
+#' ## This is an example with multiple variables:
+#' dm <- dist(mtcars[1:3], method="euclidean") 
+#' 
+#' # Right-hand side adjustment formula. Note that you may use any data type 
+#' # including factor, character, integer, and numeric.
+#' formula <- ~ as.factor(gear) + as.integer(hp) + wt
+#' 
+#' #' # Create the adjusted distance matrix 'a.dm'
+#' a.dm <- a.dist(dm=dm, formula=formula, formula_data=mtcars)
+#' a.dm
+#' 
+a.dist = function(dm, formula, formula_data=parent.frame(), tol=10^-8) 
 {
+  data <- formula_data
   Terms <- stats::terms(formula, data = data)
-  lhs <- formula[[2]]
-  lhs <- eval(lhs, data, parent.frame())
-  formula[[2]] <- NULL
-  rhs.frame <- stats::model.frame(formula, data, drop.unused.levels = TRUE)
-  rhs <- stats::model.matrix(formula, rhs.frame)
-  grps <- attr(rhs, "assign")
-  qrhs <- qr(rhs)
+  # lhs <- formula[[2]]
+  # lhs <- eval(lhs, data, parent.frame())
+  # formula[[2]] <- NULL
+  lhs <- dm
+  rhs.frame <- stats::model.frame(formula, data, drop.unused.levels = TRUE) ## extract data.frame from a formula
+  rhs <- stats::model.matrix(formula, rhs.frame) ## expand and create dummy variables for the terms
+  grps <- attr(rhs, "assign") ## tells which column from the data set each dummy variable came from
+  qrhs <- qr(rhs) ##computes the QR decomposition of rhs matrix
   rhs <- rhs[, qrhs$pivot, drop = FALSE]
   rhs <- rhs[, 1:qrhs$rank, drop = FALSE]
   grps <- grps[qrhs$pivot][1:qrhs$rank]
@@ -151,31 +173,30 @@ a.dist = function (formula, data=parent.frame(), tol=10^-8)
   nterms <- length(u.grps) - 1
   if (nterms < 1) 
     stop("right-hand-side of formula has no usable terms")
-  dmat <- as.matrix(lhs^2)
+  dmat <- as.matrix(lhs^2) #still has the labels of lhs
   X <- rhs
   X <- as.matrix(X)
-  
   H <- X %*% solve(t(X) %*% X) %*% t(X)
   A <- -1/2 * dmat
-  
-  J <- diag(nrow(X)) - matrix(rep(1/(nrow(X)), length(A)), 
-                              nrow = nrow(A))
-  E <- (diag(nrow(H)) - H) %*% J %*% A %*% J %*% (diag(nrow(H)) - 
-                                                    H)
-  rownames(E) <- rownames(data)
-  colnames(E) <- rownames(data)
+  J <- diag(nrow(X)) - matrix(rep(1/(nrow(X)), length(A)), nrow = nrow(A))
+  E <- (diag(nrow(H)) - H) %*% J %*% A %*% J %*% (diag(nrow(H)) - H)
+
+  # rownames(E) <- rownames(data)
+  # colnames(E) <- rownames(data)
   
   # Correct rounding errors that cause E to be not symmetric
-  E = (E+t(E))/2
+  E <- (E + t(E))/2
   
-  eig = eigen(E)
-  eig$values[abs(eig$values)<tol] = 0
+  eig <- eigen(E)
+  eig$values[abs(eig$values) < tol] = 0
   lambda <- eig$values
   
-  if (any(lambda<0)) {
-    warning(paste(sum(lambda<0), "out of", length(lambda), "eigenvalues are negative!"))
+  if (any(lambda < 0)) {
+    warning(paste(sum(lambda < 0), "out of", length(lambda), "eigenvalues are negative!"))
   }
   
   w <- t(t(eig$vectors) * sqrt(lambda))
-  stats::dist(w)
+  w <- stats::dist(w)
+  attr(w, "Labels") <- attr(lhs, "Labels")
+  return(w)
 }
