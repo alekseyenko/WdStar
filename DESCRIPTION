@@ -7,7 +7,7 @@ Description: An R package designed to improve the statistical robustness of micr
   This method resolves potential for confounding of location and dispersion effects in multivariate
   analyses by explicitly accounting for the differences in multivariate dispersion in the data tested.
   The methods based on have general applicability in microbiome and other ‘omics data analyses.
-License: MIT + file LICENSE  
+License: GPL (>= 3)
 URL: https://github.com/alekseyenko/WdStar  
 BugReports: https://github.com/alekseyenko/WdStar  
 Maintainer: Bashir Mark Hamidi <hamidib@musc.edu>
@@ -22,4 +22,3 @@ Encoding: UTF-8
 Config/testthat/edition: 3
 LazyData: true
 RoxygenNote: 7.3.2  
-
