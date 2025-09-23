@@ -117,7 +117,7 @@ dist.cohen.d <- function(dm, f) {
 #' @param dm A distance matrix (any arbitrary distance or dissimilarity metric).
 #'
 #' @param formula Only the right hand side of a typical formula such as Y~ A is necessary.
-#'                The formula has the similar requirements as in \code{vegan::adonis()} function.
+#'                The formula has similar requirements as in \code{vegan::adonis()} function.
 #'
 #' @param formula_data A dataset which contains the variables specified in formula.
 #'            It must be in a data.frame format with the row names the same as the
@@ -130,13 +130,14 @@ dist.cohen.d <- function(dm, f) {
 #' @return Returns a distance matrix of class \code{dist} representing the Euclidean distances
 #'
 #' @details The \code{a.dist()} function only requires a right-hand side of the formula.
-#'          Instead of the left-hand side, it uses the dissimilarity distance matrix dm.
+#'          Instead of the left-hand side, it uses the dissimilarity distance matrix \code{dm}.
 #'          The function constructs a model matrix from the right-hand side (RHS)
 #'          of the formula. After performing necessary matrix operations and
 #'          eigen-decomposition, it calculates the Euclidean distances. It preserves the
 #'          labels of the input dm.
-#'          This function refactors and generalizes functionality from \code{apcoa::apcoa()}
-#'          in the aPCoA package.
+#'
+#'          This function refactors and generalizes functionality from \code{aPCoA::aPCoA()}
+#'          function in the aPCoA package.
 #' @references  Shi Y, Zhang L, Do KA, Peterson CB, Jenq RR. aPCoA: covariate adjusted principal coordinates analysis. Bioinformatics. 2020;36(13):4099-4101. doi:10.1093/bioinformatics/btaa276
 #'
 #'              Shi Y (2021). aPCoA: Covariate Adjusted PCoA Plot. R package version 1.3, https://CRAN.R-project.org/package=aPCoA.
