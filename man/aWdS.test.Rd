@@ -24,11 +24,11 @@ aWdS.test(
 the test will perform p-value computations using stratified permutation.
 Default is NULL.}
 
-\item{formula}{(optional) A right-hand side ONLY formula to be used with 
+\item{formula}{(optional) A right-hand side ONLY formula to be used with
 'formula_data' for confounder adjustment of WdS statistic, Omega squared (ω²)
  effect size estimate, and p-value. Default is NULL}
 
-\item{formula_data}{(optional) A data frame to be used in conjunction with 
+\item{formula_data}{(optional) A data frame to be used in conjunction with
 'formula' for confounder adjustment. Default is parent.frame()}
 }
 \value{
@@ -40,45 +40,45 @@ A list containing:
   \item \code{estimate}: The Omega squared (ω²) effect size estimate.
   \item \code{nrep}: The number of permutations performed.
   \item \code{p.value}: The p-value of the test.
-  \item \code{parameter}: a list of 2-4 containing strata (optional), 
+  \item \code{parameter}: a list of 2-4 containing strata (optional),
   adjustment formula (optional), between degrees of freedom (dfb), and number of permutations performed
   (nrep).
 }
 }
 \description{
-'aWdS.test()' defaults to an unadjusted Wds.test() if the optional parameters 'formula' and 'formula_data' are not provided. 
+\code{aWdS.test()} defaults to an unadjusted \code{Wds.test()} if the optional parameters 'formula' and 'formula_data' are not provided.
 Users may choose to pre-adjust their 'dm' before using this function or choose to use make adjustments within the function.
 }
 \details{
 This function performs the WdS test statistic for k-group comparison using a given distance matrix.
-Optionally, it can preprocess the provided data through the \code{a.dist} function using a specified
-formula before performing the test, if 'dm', 'formula', and 'formula_data' are provided.  
+Optionally, it can preprocess the provided data through the \code{a.dist()} function using a specified
+formula before performing the test, if 'dm', 'formula', and 'formula_data' are provided.
 
 If optional adjustment parameters are provided, it projects matrices to remove the effect of covariate.
 }
 \examples{
 data(mtcars)
 
-# The outcome could be a single variable or multiple variables (such as multidimensional omics data).  
-## This is an example with a single variable:  
+# The outcome could be a single variable or multiple variables (such as multidimensional omics data).
+## This is an example with a single variable:
 dm <- dist(mtcars$mpg, method="euclidean")
 
-## This is an example with multiple variables:  
-dm <- dist(mtcars[1:3], method="euclidean") 
+## This is an example with multiple variables:
+dm <- dist(mtcars[1:3], method="euclidean")
 
 f <- factor(mtcars$gear)
 
-# Adjusted example using *'aWdS.test()'*  
-## Right-hand side adjustment formula. Note that you may use any data type including factor, character, integer, and numeric.  
-formula <- ~ wt + as.factor(am) 
+# Adjusted example using *'aWdS.test()'*
+## Right-hand side adjustment formula. Note that you may use any data type including factor, character, integer, and numeric.
+formula <- ~ wt + as.factor(am)
 aWdS.test(dm=dm, f=f, formula=formula, formula_data=mtcars)
-# Adjusted example using *'WdS.test()'*  
-## Create the adjusted distance matrix 'a.dm'  
+# Adjusted example using *'WdS.test()'*
+## Create the adjusted distance matrix 'a.dm'
 a.dm <- a.dist(dm=dm, formula=formula, formula_data=mtcars)
-# Perform adjusted test with 'a.dm'  
+# Perform adjusted test with 'a.dm'
 WdS.test(dm=a.dm, f=f)
 
-# Unadjusted example (equivalent to 'WdS.test()')  
+# Unadjusted example (equivalent to 'WdS.test()')
 aWdS.test(dm=dm, f=f)
 
 }
