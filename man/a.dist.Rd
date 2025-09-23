@@ -10,7 +10,7 @@ a.dist(dm, formula, formula_data = parent.frame(), tol = 10^-8)
 \item{dm}{A distance matrix (any arbitrary distance or dissimilarity metric).}
 
 \item{formula}{Only the right hand side of a typical formula such as Y~ A is necessary.
-The formula has the similar requirements as in \code{vegan::adonis()} function.}
+The formula has similar requirements as in \code{vegan::adonis()} function.}
 
 \item{formula_data}{A dataset which contains the variables specified in formula.
 It must be in a data.frame format with the row names the same as the
@@ -30,13 +30,14 @@ performs PCoA, and returns the resulting corrected matrix.
 }
 \details{
 The \code{a.dist()} function only requires a right-hand side of the formula.
-         Instead of the left-hand side, it uses the dissimilarity distance matrix dm.
+         Instead of the left-hand side, it uses the dissimilarity distance matrix \code{dm}.
          The function constructs a model matrix from the right-hand side (RHS)
          of the formula. After performing necessary matrix operations and
          eigen-decomposition, it calculates the Euclidean distances. It preserves the
          labels of the input dm.
-         This function refactors and generalizes functionality from \code{apcoa::apcoa()}
-         in the aPCoA package.
+
+         This function refactors and generalizes functionality from \code{aPCoA::aPCoA()}
+         function in the aPCoA package.
 }
 \examples{
 data(mtcars)
