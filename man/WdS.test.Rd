@@ -37,28 +37,28 @@ This function performs the WdS test statistic for k-group differences comparison
 \examples{
 data(mtcars)
 
-# The outcome could be a single variable or multiple variables (such as multidimensional omics data).  
-## This is an example with a single variable:  
+# The outcome could be a single variable or multiple variables (such as multidimensional omics data).
+## This is an example with a single variable:
 dm <- dist(mtcars$mpg, method="euclidean")
 
-## This is an example with multiple variables:  
-dm <- dist(mtcars[1:3], method="euclidean") 
+## This is an example with multiple variables:
+dm <- dist(mtcars[1:3], method="euclidean")
 
 f <- factor(mtcars$gear)
 
-# Multivariate test example  
+# Multivariate test example
 WdS.test(dm=dm, f=f)
 
-# Stratified example  
+# Stratified example
 strata <- factor(mtcars$vs)
 WdS.test(dm=dm, f=f, strata=strata)
 
-# Adjusted example (equivalent to 'aWdS.test()' without the need to pass adjustment variable)  
-## Right-hand side adjustment formula. Note that you may use any data type including factor, character, integer, and numeric.  
+# Adjusted example (equivalent to 'aWdS.test()' without the need to pass adjustment variable)
+## Right-hand side adjustment formula. Note that you may use any data type including factor, character, integer, and numeric.
 formula <- ~ wt + as.factor(am)
-## Create the adjusted distance matrix 'a.dm'  
+## Create the adjusted distance matrix 'a.dm'
 a.dm <- a.dist(dm=dm, formula=formula, formula_data=mtcars)
-## Perform adjusted test with 'a.dm'  
+## Perform adjusted test with 'a.dm'
 WdS.test(dm=a.dm, f=f)
 
 }
