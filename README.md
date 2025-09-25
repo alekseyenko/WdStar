@@ -6,13 +6,13 @@
 In version 2.3.0 we update exisiting functions and introduce new ones. Changes include:
   - Allows [installation of R package using `devtools::install_github()`](https://github.com/bashirhamidi/WdStar-sandbox/tree/sandbox?tab=readme-ov-file#installation)
   - Package versioning  
-  - Addition of `aWdS.test()` to peform covariate-adjusted tests 
+  - Addition of function to to peform covariate-adjusted tests using `WdS.test()` 
   - Addition of effect-size using omega squared
   - Addition of between degrees of freedom
   - Changes of parameters within the `a.dist()` function to not request duplicate objects
   - Error and datatype handling improvements
-  - Improvements to outputs including `a.dist()`,`WdS.test()`, and `aWdS.test()`
-  - Revamped help files and updated examples for `a.dist()`, `WdS.test()`, and `aWdS.test()`
+  - Improvements to outputs including `a.dist()` and `WdS.test()`
+  - Revamped help files and updated examples for `a.dist()` and `WdS.test()`
 
 
 ## Introduction 
@@ -45,11 +45,10 @@ In version 2.3.0 we update exisiting functions and introduce new ones. Changes i
 - [Code repository](https://github.com/alekseyenko/Tw2)
 
 ## Installation  
-Source installation of `WdStar` R package is available directly from GitHub using `devtools` for R 3.4 or later:
+Source installation of `WdStar` R package is available directly from GitHub using `remotes` or `devtools` for R 3.4 or later:
 ```R
-install.packages("devtools")
-library("devtools")
-devtools::install_github("alekseyenko/WdStar", force=T)
+install.packages("remotes")
+remotes::install_github("alekseyenko/WdStar", force=T)
 library(WdStar)
 packageVersion("WdStar")
 ```
@@ -68,27 +67,40 @@ data(mtcars)
 
 # The outcome could be a single variable or multiple variables (such as multidimensional omics data).  
 
-### This is an example with a single variable (`mpg`):
+### This is an example of outcome with a single variable (`mpg`):
 dm <- dist(mtcars$mpg, method="euclidean")
 
-### This is an example with multiple variables (`mpg`, `cyl`, and `disp`):
+### This is an example of outcome with multiple variables (`mpg`, `cyl`, and `disp`):
 dm <- dist(mtcars[1:3], method="euclidean") 
 
-# Independent variable. You could use multiple variables here too.
+# Grouping/independent variable. You could use multiple variables here too.
 f <- factor(mtcars$gear)
 
-# Perform multivariate test  
+# Basic multivariate test example ###########
+#############################################
 WdS.test(dm=dm, f=f)
 
-# Perform stratified test by variable 'vs'
+# Stratified example ########################
+#############################################
 strata <- factor(mtcars$vs)
 WdS.test(dm=dm, f=f, strata=strata)
+
+# Covariate adjustment/elimination examples #
+#############################################
+## Right-hand side adjustment formula to specify adjustment covariates. 
+formula <- ~ wt + as.factor(am) 
+
+## Adjustment example 1: pass unadjusted `dm` and formula to WdS.test()
+WdS.test(dm=dm, f=f, formula=formula, formula_data=mtcars) ## Perform adjusted test
+
+## Adjustment example 2: Create the adjusted distance matrix `a.dm` outside the function
+a.dm <- a.dist(dm=dm, formula=formula, formula_data=mtcars) 
+WdS.test(dm=a.dm, f=f) ## Perform adjusted test with `a.dm`
 ```
 
 Further examples are provided in the package documentation and may be accessed by running the following commands:
 ```R
-?WdS.test #OR
-?aWdS.test
+?WdS.test
 ?a.dist
 ```
 

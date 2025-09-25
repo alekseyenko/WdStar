@@ -43,5 +43,5 @@ It is particularly useful for analyzing microbiome data.
 Hamidi, Bashir, et al. "$ W_ {d}^{*} $-test: robust distance-based multivariate analysis of variance." Microbiome 7.1 (2019): 1-9.
 }
 \seealso{
-\code{\link{Tw2.test}}, \code{\link{WdS.test}}, \code{\link{aWdS.test}}
+\code{\link{Tw2.test}}, \code{\link{WdS.test}}
 }

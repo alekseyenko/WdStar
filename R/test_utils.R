@@ -18,7 +18,7 @@
 #' }
 #'
 #' @references Hamidi, Bashir, et al. "$ W_ {d}^{*} $-test: robust distance-based multivariate analysis of variance." Microbiome 7.1 (2019): 1-9.
-#' @seealso \code{\link{Tw2.test}}, \code{\link{WdS.test}}, \code{\link{aWdS.test}}
+#' @seealso \code{\link{Tw2.test}}, \code{\link{WdS.test}}
 #' @export
 #' @examples
 #' # TODO: Add examples
@@ -63,7 +63,7 @@ generic.distance.permutation.test =
 #'   \item \code{nrep}: The number of permutations performed
 #' }
 #'
-#' @seealso \code{\link{aWdS.test}}, \code{\link{WdS.test}}, \code{\link{generic.distance.permutation.test}}
+#' @seealso \code{\link{WdS.test}}, \code{\link{generic.distance.permutation.test}}
 #' @export
 #' @examples
 #' # TODO: Add examples
@@ -71,89 +71,112 @@ Tw2.test <- function(dm, f, nrep = 999) {
   generic.distance.permutation.test(Tw2, dm = dm, f = f, nrep = nrep)
 }
 
-#' Conducts an adjusted WdS distance-based multivariate Welch ANOVA using optional confounder elimination
+#' Conducts distance-based multivariate Welch ANOVA
+#' 
+#' This function performs the \eqn{\mathnormal{W}_d^*} test statistic for k-group comparison
+#' using a given distance matrix.
 #'
-#' \code{aWdS.test()} defaults to an unadjusted \code{Wds.test()} if the optional parameters 'formula' and 'formula_data' are not provided.
-#' Users may choose to pre-adjust their 'dm' before using this function or choose to use make adjustments within the function.
+#' This method uses permutation testing to establish the significance by
+#' computing \eqn{\mathnormal{W}_d^*} statistic on \eqn{\mathnormal{m}} permutations of the original data and
+#' estimate the significance as the fraction of times the permuted statistic is
+#' greater than or equal to \eqn{\mathnormal{W}_d}.
 #'
-#' This function performs the WdS test statistic for k-group comparison using a given distance matrix.
-#' Optionally, it can preprocess the provided data through the \code{a.dist()} function using a specified
-#' formula before performing the test, if 'dm', 'formula', and 'formula_data' are provided.
+#' Our approach can accommodate multi-level factors, stratification (via
+#' restricted permutations), multiple post-hoc testing scenarios, and covariate
+#' adjustment/ elimination (via projection of residuals).
 #'
-#' If optional adjustment parameters are provided, it projects matrices to remove the effect of covariate.
-#'
+#' If optional covariate adjustment parameters (\code{`formula`}, and
+#' \code{`formula_data`}) are provided as input, they are passed to the \code{WdStar::a.dist()} 
+#' function to project residual matrices and remove the effect of specified 
+#' covariate(s) from distance matrix \code{dm} before performing the test. 
+#' Users may choose to make adjustments within the function or use \code{WdStar::a.dist()} 
+#' outside the function and then pass on the adjusted distance matrix to \code{WdStar::WdS.test()}.
+#' 
 #' @param dm A distance matrix (any arbitrary distance or dissimilarity metric).
 #' @param f A factor variable representing the groups.
-#' @param nrep The number of permutations to conduct. Default is 999.
+#' @param nrep (optional) The number of permutations to conduct. Default is 999.
 #' @param strata (optional) A factor variable representing strata. If specified,
 #'   the test will perform p-value computations using stratified permutation.
 #'   Default is NULL.
 #' @param formula (optional) A right-hand side ONLY formula to be used with
-#' 'formula_data' for confounder adjustment of WdS statistic, Omega squared (ω²)
-#'  effect size estimate, and p-value. Default is NULL
+#'  'formula_data' for confounder adjustment/elimination from `dm`. Results in 
+#'  adjusted WdS statistic, Omega squared (ω²) effect size estimate, and p-value. 
+#'  Note that you may use any data type including factor, character, integer, and
+#'  numeric. Default is NULL
 #' @param formula_data (optional) A data frame to be used in conjunction with
 #' 'formula' for confounder adjustment. Default is parent.frame()
 #' @return A list containing:
 #' \itemize{
-#'   \item \code{method}: The name of the method used.
-#'   \item \code{data.name}: A string containing the name of input data.
-#'   \item \code{statistic}: The observed WdS test statistic.
-#'   \item \code{estimate}: The Omega squared (ω²) effect size estimate.
-#'   \item \code{nrep}: The number of permutations performed.
+#'   \item \code{method}: name of the method used.
+#'   \item \code{data.name}: a string describing the input data.
+#'   \item \code{statistic}: observed WdS test statistic.
+#'   \item \code{estimate}: Omega squared (ω²) effect size estimate.
 #'   \item \code{p.value}: The p-value of the test.
-#'   \item \code{parameter}: a list of 2-4 containing strata (optional),
-#'   adjustment formula (optional), between degrees of freedom (dfb), and number of permutations performed
-#'   (nrep).
+#'   \item \code{parameter}: A list of 2-4 containing:  
+#'          \itemize{
+#'          \item \code{strata}: (optional) strata variable used to perform restricted permutations.
+#'          \item \code{formula}: (optional) formula for residual projection to perform matrix adjustment.
+#'          \item \code{dfb}: between degrees of freedom.
+#'          \item \code{nrep}: number of permutations performed
+#'          } 
 #' }
 #'
-#' @seealso \code{\link{WdS.test}}, \code{\link{generic.distance.permutation.test}}, \code{\link{Tw2.test}},
+#' @seealso \code{\link{generic.distance.permutation.test}}, \code{\link{Tw2.test}},
 #'          \code{\link{a.dist}}
 #' @export
 #' @examples
+#' # The following is a simple example using the mtcars dataset to assess the  
+#' # effect of gears on mpg, cyl, and disp (first three variables of the dataset):
 #' data(mtcars)
 #'
-#' # The outcome could be a single variable or multiple variables (such as multidimensional omics data).
-
-#' ## This is an example with a single variable:
+#' # The outcome could be a single variable or multiple variables (such as  
+#' #  multidimensional omics data).
+#'
+#' ## This is an example of outcome with a single variable:
 #' dm <- dist(mtcars$mpg, method="euclidean")
 #'
-#' ## This is an example with multiple variables:
+#' ## This is an example of outcome with multiple variables:
 #' dm <- dist(mtcars[1:3], method="euclidean")
 #'
+#' # Grouping/independent variable. You could use multiple variables here too.
 #' f <- factor(mtcars$gear)
 #'
-#' # Adjusted example using *'aWdS.test()'*
-#' ## Right-hand side adjustment formula. Note that you may use any data type including factor, character, integer, and numeric.
-#' formula <- ~ wt + as.factor(am)
-#' aWdS.test(dm=dm, f=f, formula=formula, formula_data=mtcars)
-
-#' # Adjusted example using *'WdS.test()'*
-#' ## Create the adjusted distance matrix 'a.dm'
-#' a.dm <- a.dist(dm=dm, formula=formula, formula_data=mtcars)
-#' # Perform adjusted test with 'a.dm'
-#' WdS.test(dm=a.dm, f=f)
+#' # Basic multivariate test example ###########
+#' #############################################
+#' WdS.test(dm=dm, f=f)
 #'
-#' # Unadjusted example (equivalent to 'WdS.test()')
-#' aWdS.test(dm=dm, f=f)
+#' # Stratified example ########################
+#' #############################################
+#' strata <- factor(mtcars$vs)
+#' WdS.test(dm=dm, f=f, strata=strata)
 #'
-aWdS.test <- function(dm, f, nrep=999, strata=NULL, formula=NULL, formula_data=parent.frame()){
+#' # Covariate adjustment/elimination examples #
+#' #############################################
+#' ## Right-hand side adjustment formula to specify adjustment covariates. 
+#' formula <- ~ wt + as.factor(am) 
+#'
+#' ## Adjustment example 1: pass unadjusted `dm` and formula to WdS.test()
+#' WdS.test(dm=dm, f=f, formula=formula, formula_data=mtcars) ## Perform adjusted test
+#'
+#' ## Adjustment example 2: Create the adjusted distance matrix `a.dm` outside the function
+#' a.dm <- a.dist(dm=dm, formula=formula, formula_data=mtcars) 
+#' WdS.test(dm=a.dm, f=f) ## Perform adjusted test with `a.dm`
+#'
+WdS.test <- function(dm, f, nrep=999, strata=NULL, formula=NULL, formula_data=parent.frame()){
 #   if (!is.null(formula) != !is.null(formula_data)) { #in certain cases didn't trigger error when formula was provided but data wasn't.
 #    if (xor(is.null(formula), is.null(formula_data))) { # same issue as above. This has to do with default value of formula_data=parent.frame()
 #  if (!is.null(formula) && (is.null(formula_data) || !(is.data.frame(formula_data) || is.list(formula_data)))) { #function proceeds even without formula
   has_formula <- !is.null(formula)
   has_data <- !is.null(formula_data) && (is.data.frame(formula_data) || is.list(formula_data))
   if (has_formula != has_data) {
-      stop("Both 'formula' and 'formula_data' must be provided together for a.dist() processing.")
+      stop("Both 'formula' and 'formula_data' must be provided together for a.dist() adjustment processing.")
    }
-
-  if (#!is.null(data) &&
-      !is.null(formula)) {
+  if (!is.null(formula)) {
     dm <- a.dist(dm, formula, formula_data)
   }
-
   test.results <- generic.distance.permutation.test(WdS, dm=dm, f=f, nrep=nrep, strata=strata)
 
-  # Name of the hypothesis test
+    # Name of the hypothesis test
   if(!is.null(formula)) {
     method <- "Adjusted Distance-based Multivariate Welch ANOVA"
     adjustment_formula <- deparse(substitute(formula))
@@ -162,15 +185,14 @@ aWdS.test <- function(dm, f, nrep=999, strata=NULL, formula=NULL, formula_data=p
     adjustment_formula <- NULL
     }
 
-  # Insert strata information
+  # Strata information
   if(!is.null(strata)){
-    strata_selected <- "\n\tP-value is based on stratified permutations. WdS statistic and ω² are not stratified by strata."}
+    strata_selected <- "\n\tP-value is based on stratified permutations. WdS statistic and ω² are not computed by strata."}
     else {strata_selected <- NULL}
 
   # Description of the data
   data.name <- paste0(attr(dm, "method"), " distance matrix with ", attr(dm, "Size"), " observations and grouping factor with ", nlevels(f), " levels", strata_selected)
-  #paste0("Distance matrix ", deparse(substitute(dm)), " with grouping factor ", deparse(substitute(f)), adjustment_formula, strata_selected)
-
+  
   # Value of the parameter under the null hypothesis
   # null.value <- 0
   # attr(null.value, "names") <- "expected WdS under H0"
@@ -186,7 +208,7 @@ aWdS.test <- function(dm, f, nrep=999, strata=NULL, formula=NULL, formula_data=p
   estimate <- (((length(levels(f))-1)*(unname(statistic)-1))/((length(levels(f))-1)*(unname(statistic) - 1) + attr(dm, "Size")))
   attr(estimate, "names") <- "Omega squared (ω²) effect size"
 
-  # P value
+  # P-value
   p.value <- test.results$p.value
 
   # Creating object of class 'htest'
@@ -203,108 +225,6 @@ aWdS.test <- function(dm, f, nrep=999, strata=NULL, formula=NULL, formula_data=p
                              )
                )
   class(TEST) <- c("wdstest", "htest")
-
   return(TEST)
 }
 
-#' Conducts the original WdS distance-based multivariate Welch ANOVA
-#'
-#' This function performs the WdS test statistic for k-group differences comparison using a given distance matrix.
-#'
-#' @param dm A distance matrix (any arbitrary distance or dissimilarity metric).
-#' @param f A factor variable representing the groups.
-#' @param nrep The number of permutations to conduct. Default is 999.
-#' @param strata (optional) A factor variable representing strata. If specified,
-#'   the test will perform p-value computations using stratified permutation.
-#'   Default is NULL.
-#' @return A list containing:
-#' \itemize{
-#'   \item \code{method}: The name of the method used.
-#'   \item \code{data.name}: A string containing the name of input data.
-#'   \item \code{statistic}: The observed WdS test statistic.
-#'   \item \code{estimate}: The Omega squared (ω²) effect size estimate.
-#'   \item \code{nrep}: The number of permutations performed.
-#'   \item \code{p.value}: The p-value of the test.
-#'   \item \code{parameter}: a list of 2 or 3 containing Strata (optional),
-#'   between degrees of freedom (dfb), and number of permutations performed
-#'   (nrep).
-#' }
-#'
-#' @seealso \code{\link{aWdS.test}}, \code{\link{generic.distance.permutation.test}}, \code{\link{Tw2.test}}
-#' @export
-#' @examples
-#' data(mtcars)
-#'
-#' # The outcome could be a single variable or multiple variables (such as multidimensional omics data).
-
-#' ## This is an example with a single variable:
-#' dm <- dist(mtcars$mpg, method="euclidean")
-#'
-#' ## This is an example with multiple variables:
-#' dm <- dist(mtcars[1:3], method="euclidean")
-#'
-#' f <- factor(mtcars$gear)
-#'
-#' # Multivariate test example
-#' WdS.test(dm=dm, f=f)
-#'
-#' # Stratified example
-#' strata <- factor(mtcars$vs)
-#' WdS.test(dm=dm, f=f, strata=strata)
-#'
-#' # Adjusted example (equivalent to 'aWdS.test()' without the need to pass adjustment variable)
-#' ## Right-hand side adjustment formula. Note that you may use any data type including factor, character, integer, and numeric.
-#' formula <- ~ wt + as.factor(am)
-#' ## Create the adjusted distance matrix 'a.dm'
-#' a.dm <- a.dist(dm=dm, formula=formula, formula_data=mtcars)
-#' ## Perform adjusted test with 'a.dm'
-#' WdS.test(dm=a.dm, f=f)
-#'
-WdS.test <- function(dm, f, nrep=999, strata=NULL){
-
-  test.results <- generic.distance.permutation.test(WdS, dm=dm, f=f, nrep=nrep, strata=strata)
-
-  # Name of the hypothesis test
-  method <- "Distance-based Multivariate Welch ANOVA" #"Multivariate Welch ANOVA"
-
-  # Insert strata information
-  if(!is.null(strata)){
-    strata_selected <- "\n\tp-value is based on stratified permutations. WdS statistic and ω² are not adjusted for strata"} else {
-      strata_selected <- NULL}
-
-  # Description of the data
-  data.name <- paste0(attr(dm, "method"), " distance matrix with ", attr(dm, "Size"), " observations and grouping factor with ", nlevels(f), " levels", strata_selected)
-  # paste0("Distance matrix ", deparse(substitute(dm)), " with grouping factor ", deparse(substitute(f)), strata_selected)
-
-  # Value of the parameter under the null hypothesis
-  # null.value <- 0
-  # attr(null.value, "names") <- "expected WdS under H0"
-
-  # Direction of the alternative hypothesis relative to the null value
-  # alternative <- "two.sided" # this is not necessary
-
-  # Statistic value
-  statistic <- test.results$statistic
-  attr(statistic, "names") <- "WdS"
-
-  # Estimate using omega squared
-  estimate <- (((length(levels(f))-1)*(unname(statistic)-1))/((length(levels(f))-1)*(unname(statistic) - 1) + attr(dm, "Size")))
-  attr(estimate, "names") <- "Omega squared (ω²) effect size"
-
-
-  # P value
-  p.value <- test.results$p.value
-
-  # Creating object of class 'htest'
-  TEST <- list(method = method, data.name = data.name, # null.value = null.value, # alternative = alternative,
-               statistic = statistic, p.value = p.value,
-               estimate = estimate,
-               parameter = c(if(!is.null(strata)){c("strata"= deparse(substitute(strata)))},
-                             c("dfb" = (length(levels(f))-1)),
-                             c("number of permutations" = nrep)
-                             )
-               )
-  class(TEST) <- "htest"
-
-  return(TEST)
-}
