@@ -2,66 +2,115 @@
 % Please edit documentation in R/test_utils.R
 \name{WdS.test}
 \alias{WdS.test}
-\title{Conducts the original WdS distance-based multivariate Welch ANOVA}
+\title{Conducts distance-based multivariate Welch ANOVA}
 \usage{
-WdS.test(dm, f, nrep = 999, strata = NULL)
+WdS.test(
+  dm,
+  f,
+  nrep = 999,
+  strata = NULL,
+  formula = NULL,
+  formula_data = parent.frame()
+)
 }
 \arguments{
 \item{dm}{A distance matrix (any arbitrary distance or dissimilarity metric).}
 
 \item{f}{A factor variable representing the groups.}
 
-\item{nrep}{The number of permutations to conduct. Default is 999.}
+\item{nrep}{(optional) The number of permutations to conduct. Default is 999.}
 
 \item{strata}{(optional) A factor variable representing strata. If specified,
 the test will perform p-value computations using stratified permutation.
 Default is NULL.}
+
+\item{formula}{(optional) A right-hand side ONLY formula to be used with
+'formula_data' for confounder adjustment/elimination from `dm`. Results in 
+adjusted WdS statistic, Omega squared (ω²) effect size estimate, and p-value. 
+Note that you may use any data type including factor, character, integer, and
+numeric. Default is NULL}
+
+\item{formula_data}{(optional) A data frame to be used in conjunction with
+'formula' for confounder adjustment. Default is parent.frame()}
 }
 \value{
 A list containing:
 \itemize{
-  \item \code{method}: The name of the method used.
-  \item \code{data.name}: A string containing the name of input data.
-  \item \code{statistic}: The observed WdS test statistic.
-  \item \code{estimate}: The Omega squared (ω²) effect size estimate.
-  \item \code{nrep}: The number of permutations performed.
+  \item \code{method}: name of the method used.
+  \item \code{data.name}: a string describing the input data.
+  \item \code{statistic}: observed WdS test statistic.
+  \item \code{estimate}: Omega squared (ω²) effect size estimate.
   \item \code{p.value}: The p-value of the test.
-  \item \code{parameter}: a list of 2 or 3 containing Strata (optional),
-  between degrees of freedom (dfb), and number of permutations performed
-  (nrep).
+  \item \code{parameter}: A list of 2-4 containing:  
+         \itemize{
+         \item \code{strata}: (optional) strata variable used to perform restricted permutations.
+         \item \code{formula}: (optional) formula for residual projection to perform matrix adjustment.
+         \item \code{dfb}: between degrees of freedom.
+         \item \code{nrep}: number of permutations performed
+         } 
 }
 }
 \description{
-This function performs the WdS test statistic for k-group differences comparison using a given distance matrix.
+This function performs the \eqn{\mathnormal{W}_d^*} test statistic for k-group comparison
+using a given distance matrix.
+}
+\details{
+This method uses permutation testing to establish the significance by
+computing \eqn{\mathnormal{W}_d^*} statistic on \eqn{\mathnormal{m}} permutations of the original data and
+estimate the significance as the fraction of times the permuted statistic is
+greater than or equal to \eqn{\mathnormal{W}_d}.
+
+Our approach can accommodate multi-level factors, stratification (via
+restricted permutations), multiple post-hoc testing scenarios, and covariate
+adjustment/ elimination (via projection of residuals).
+
+If optional covariate adjustment parameters (\code{`formula`}, and
+\code{`formula_data`}) are provided as input, they are passed to the \code{WdStar::a.dist()} 
+function to project residual matrices and remove the effect of specified 
+covariate(s) from distance matrix \code{dm} before performing the test. 
+Users may choose to make adjustments within the function or use \code{WdStar::a.dist()} 
+outside the function and then pass on the adjusted distance matrix to \code{WdStar::WdS.test()}.
 }
 \examples{
+# The following is a simple example using the mtcars dataset to assess the  
+# effect of gears on mpg, cyl, and disp (first three variables of the dataset):
 data(mtcars)
 
-# The outcome could be a single variable or multiple variables (such as multidimensional omics data).
-## This is an example with a single variable:
+# The outcome could be a single variable or multiple variables (such as  
+#  multidimensional omics data).
+
+## This is an example of outcome with a single variable:
 dm <- dist(mtcars$mpg, method="euclidean")
 
-## This is an example with multiple variables:
+## This is an example of outcome with multiple variables:
 dm <- dist(mtcars[1:3], method="euclidean")
 
+# Grouping/independent variable. You could use multiple variables here too.
 f <- factor(mtcars$gear)
 
-# Multivariate test example
+# Basic multivariate test example ###########
+#############################################
 WdS.test(dm=dm, f=f)
 
-# Stratified example
+# Stratified example ########################
+#############################################
 strata <- factor(mtcars$vs)
 WdS.test(dm=dm, f=f, strata=strata)
 
-# Adjusted example (equivalent to 'aWdS.test()' without the need to pass adjustment variable)
-## Right-hand side adjustment formula. Note that you may use any data type including factor, character, integer, and numeric.
-formula <- ~ wt + as.factor(am)
-## Create the adjusted distance matrix 'a.dm'
-a.dm <- a.dist(dm=dm, formula=formula, formula_data=mtcars)
-## Perform adjusted test with 'a.dm'
-WdS.test(dm=a.dm, f=f)
+# Covariate adjustment/elimination examples #
+#############################################
+## Right-hand side adjustment formula to specify adjustment covariates. 
+formula <- ~ wt + as.factor(am) 
+
+## Adjustment example 1: pass unadjusted `dm` and formula to WdS.test()
+WdS.test(dm=dm, f=f, formula=formula, formula_data=mtcars) ## Perform adjusted test
+
+## Adjustment example 2: Create the adjusted distance matrix `a.dm` outside the function
+a.dm <- a.dist(dm=dm, formula=formula, formula_data=mtcars) 
+WdS.test(dm=a.dm, f=f) ## Perform adjusted test with `a.dm`
 
 }
 \seealso{
-\code{\link{aWdS.test}}, \code{\link{generic.distance.permutation.test}}, \code{\link{Tw2.test}}
+\code{\link{generic.distance.permutation.test}}, \code{\link{Tw2.test}},
+         \code{\link{a.dist}}
 }
