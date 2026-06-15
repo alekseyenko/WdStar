@@ -32,15 +32,16 @@ A list containing:
 }
 }
 \description{
-This function performs a distance-based permutation test using an arbitrary test statistic.
-It is built on the principle of Welch's ANOVA and extends it to handle multivariate distance data.
-It is particularly useful for analyzing microbiome data.
+This function performs a distance-based permutation test using an arbitrary
+test statistic. It is built on the principle of Welch's ANOVA and extends it
+to handle multivariate distance data. It is particularly useful for analyzing
+microbiome data.
 }
 \examples{
 # TODO: Add examples
 }
 \references{
-Hamidi, Bashir, et al. "$ W_ {d}^{*} $-test: robust distance-based multivariate analysis of variance." Microbiome 7.1 (2019): 1-9.
+Hamidi, Bashir, et al. "$ W_ {d}^{*} $-test: robust distance-based multivariate analysis of variance." Microbiome 7.1 (2019):1-9.
 }
 \seealso{
 \code{\link{Tw2.test}}, \code{\link{WdS.test}}

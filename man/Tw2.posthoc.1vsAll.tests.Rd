@@ -7,21 +7,24 @@
 Tw2.posthoc.1vsAll.tests(dm, f, nrep = 999)
 }
 \arguments{
-\item{dm}{A distance matrix representing the pairwise distances between observations.}
+\item{dm}{A distance matrix representing the pairwise distances between
+observations.}
 
-\item{f}{A factor variable indicating the group membership of each observation.}
+\item{f}{A factor variable indicating the group membership of each
+observation.}
 
 \item{nrep}{Number of permutations to perform (default: 999).}
 }
 \value{
-A matrix containing 1-vs-All posthoc test results, with columns for sample sizes,
-        p-values, Tw2 statistics, and number of permutations.
+A matrix containing 1-vs-All posthoc test results, with columns for
+  sample sizes, p-values, Tw2 statistics, and number of permutations.
 }
 \description{
-This function performs 1-vs-All posthoc tests for the Tw2 statistic using a permutation approach.
-This is useful for comparing each group against all other groups collectively.
-This method is particularly useful in settings where multiple testing can lead to power loss,
-such as microbiome data analyses.
+This function performs 1-vs-All posthoc tests for the Tw2 statistic using a
+permutation approach. This is useful for comparing each group against all
+other groups collectively. This method is particularly useful in settings
+where multiple testing can lead to power loss, such as microbiome data
+analyses.
 }
 \examples{
 \dontrun{

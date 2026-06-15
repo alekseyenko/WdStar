@@ -1,7 +1,7 @@
 Package: WdStar
 Type: Package
 Title: Distance-based Multivariate Welch ANOVA
-Version: 2.3.0
+Version: 2.4.0
 Author: Bashir Hamidi, Kristin Wallace, Chenthamarakshan Vasu, Ivan Korostenskij, Alexander V Alekseyenko 
 Description: An R package designed to improve the statistical robustness of multivariate data analyses.
   This method resolves potential for confounding of location and dispersion effects in multivariate
@@ -17,8 +17,9 @@ Imports:
     utils,
     stats
 Suggests: 
+    phyloseq,
     testthat (>= 3.0.0)
 Encoding: UTF-8
 Config/testthat/edition: 3
 LazyData: true
-RoxygenNote: 7.3.2  
+Config/roxygen2/version: 8.0.0

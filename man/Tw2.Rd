@@ -37,5 +37,6 @@ Tw2_stat <- Tw2(dm, f)
 
 }
 \references{
-Hamidi, Bashir, et al. "$ W_ {d}^{*} $-test: robust distance-based multivariate analysis of variance." Microbiome 7.1 (2019): 1-9.
+Hamidi, Bashir, et al. "$ W_ {d}^{*} $-test: robust distance-based
+multivariate analysis of variance." Microbiome 7.1 (2019): 1-9.
 }

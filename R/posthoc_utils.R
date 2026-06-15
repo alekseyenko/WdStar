@@ -1,15 +1,19 @@
 #' Perform posthoc tests for Tw2 statistic
 #'
-#' This function performs posthoc tests for the Tw2 statistic using a permutation approach.
-#' The Tw2 statistic is an extension of the Welch ANOVA test for multivariate distances.
-#' It is especially useful for analyzing microbiome data.
+#' This function performs posthoc tests for the Tw2 statistic using a
+#' permutation approach. The Tw2 statistic is an extension of the Welch ANOVA
+#' test for multivariate distances. It is especially useful for analyzing
+#' microbiome data.
 #'
-#' @param dm A distance matrix representing the pairwise distances between observations.
-#' @param f A factor variable indicating the group membership of each observation.
+#' @param dm A distance matrix representing the pairwise distances between
+#'   observations.
+#' @param f A factor variable indicating the group membership of each
+#'   observation.
 #' @param nrep Number of permutations to perform (default: 999).
 #'
-#' @return A matrix containing posthoc test results, with columns for level combinations,
-#'         sample sizes, p-values, Tw2 statistics, and number of permutations.
+#' @return A matrix containing posthoc test results, with columns for level
+#'   combinations, sample sizes, p-values, Tw2 statistics, and number of
+#'   permutations.
 #'
 #' @examples
 #' \dontrun{
@@ -41,17 +45,20 @@ Tw2.posthoc.tests <- function(dm, f, nrep = 999) {
 
 #' Perform 1-vs-All posthoc tests for Tw2 statistic
 #'
-#' This function performs 1-vs-All posthoc tests for the Tw2 statistic using a permutation approach.
-#' This is useful for comparing each group against all other groups collectively.
-#' This method is particularly useful in settings where multiple testing can lead to power loss,
-#' such as microbiome data analyses.
+#' This function performs 1-vs-All posthoc tests for the Tw2 statistic using a
+#' permutation approach. This is useful for comparing each group against all
+#' other groups collectively. This method is particularly useful in settings
+#' where multiple testing can lead to power loss, such as microbiome data
+#' analyses.
 #'
-#' @param dm A distance matrix representing the pairwise distances between observations.
-#' @param f A factor variable indicating the group membership of each observation.
+#' @param dm A distance matrix representing the pairwise distances between
+#'   observations.
+#' @param f A factor variable indicating the group membership of each
+#'   observation.
 #' @param nrep Number of permutations to perform (default: 999).
 #'
-#' @return A matrix containing 1-vs-All posthoc test results, with columns for sample sizes,
-#'         p-values, Tw2 statistics, and number of permutations.
+#' @return A matrix containing 1-vs-All posthoc test results, with columns for
+#'   sample sizes, p-values, Tw2 statistics, and number of permutations.
 #'
 #' @examples
 #' \dontrun{

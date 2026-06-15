@@ -7,20 +7,24 @@
 Tw2.posthoc.tests(dm, f, nrep = 999)
 }
 \arguments{
-\item{dm}{A distance matrix representing the pairwise distances between observations.}
+\item{dm}{A distance matrix representing the pairwise distances between
+observations.}
 
-\item{f}{A factor variable indicating the group membership of each observation.}
+\item{f}{A factor variable indicating the group membership of each
+observation.}
 
 \item{nrep}{Number of permutations to perform (default: 999).}
 }
 \value{
-A matrix containing posthoc test results, with columns for level combinations,
-        sample sizes, p-values, Tw2 statistics, and number of permutations.
+A matrix containing posthoc test results, with columns for level
+  combinations, sample sizes, p-values, Tw2 statistics, and number of
+  permutations.
 }
 \description{
-This function performs posthoc tests for the Tw2 statistic using a permutation approach.
-The Tw2 statistic is an extension of the Welch ANOVA test for multivariate distances.
-It is especially useful for analyzing microbiome data.
+This function performs posthoc tests for the Tw2 statistic using a
+permutation approach. The Tw2 statistic is an extension of the Welch ANOVA
+test for multivariate distances. It is especially useful for analyzing
+microbiome data.
 }
 \examples{
 \dontrun{

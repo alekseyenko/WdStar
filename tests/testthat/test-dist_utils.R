@@ -43,3 +43,47 @@ test_that("dist.cohen.d correctly calculates Cohen's d for the distance matrix",
   expect_equal(dist.cohen.d(distance_matrix, factor_var), setNames(0.23071167, "A"),
                tolerance = 0.001)
 })
+
+test_that("a.dist uses formula variables from the parent frame by default", {
+  adjustment <- rep(c("low", "high"), length.out = n_rows)
+
+  adjusted_dm <- a.dist(distance_matrix, formula = ~ adjustment)
+
+  expect_s3_class(adjusted_dm, "dist")
+  expect_equal(attr(adjusted_dm, "Size"), n_rows)
+})
+
+test_that("WdS.test uses formula variables from the parent frame by default", {
+  adjustment <- rep(c("low", "high"), length.out = n_rows)
+
+  result <- WdS.test(
+    dm = distance_matrix,
+    f = factor_var,
+    nrep = 9,
+    formula = ~ adjustment
+  )
+
+  expect_s3_class(result, "htest")
+  expect_match(result$method, "Adjusted")
+})
+
+test_that("WdS.test accepts phyloseq sample_data as formula_data", {
+  skip_if_not_installed("phyloseq")
+
+  sample_df <- data.frame(
+    adjustment = rep(c("low", "high"), length.out = n_rows),
+    row.names = attr(distance_matrix, "Labels")
+  )
+  sample_df <- phyloseq::sample_data(sample_df)
+
+  result <- WdS.test(
+    dm = distance_matrix,
+    f = factor_var,
+    nrep = 9,
+    formula = ~ adjustment,
+    formula_data = sample_df
+  )
+
+  expect_s3_class(result, "htest")
+  expect_match(result$method, "Adjusted")
+})
