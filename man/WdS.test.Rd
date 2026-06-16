@@ -42,6 +42,9 @@ A list containing:
   \item \code{data.name}: a string describing the input data.
   \item \code{statistic}: observed WdS test statistic.
   \item \code{estimate}: Omega squared (\eqn{\omega^2}{\omega^2}) effect size estimate.
+  \item \code{goodness.of.fit}: (adjusted tests only) Goodness of fit
+         (\eqn{R^2}) coefficient of prediction computed as
+         \eqn{1 - SS_{residual}/SS_{total}}.
   \item \code{p.value}: The p-value of the test.
   \item \code{parameter}: A list of 2-4 containing:
          \itemize{

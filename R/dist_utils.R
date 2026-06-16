@@ -52,6 +52,40 @@ dist.sigma2 <- function(dm) {
   sum(dd^2) / nrow(dd) / (nrow(dd) - 1)
 }
 
+#' Calculate Goodness of Fit for Adjusted Distance Matrices
+#'
+#' This function computes the coefficient of prediction (\eqn{R^2}) by
+#' comparing total variation in a raw distance matrix with residual variation in
+#' an adjusted distance matrix.
+#'
+#' @param dm The original/raw distance matrix.
+#' @param adjusted_dm The adjusted/residual distance matrix.
+#'
+#' @return Goodness of fit (\eqn{R^2}) coefficient of prediction.
+#' @export
+#' @examples
+#' data(mtcars)
+#' dm <- dist(mtcars[1:3], method = "euclidean")
+#' adjusted_dm <- a.dist(dm, formula = ~ wt, formula_data = mtcars)
+#' dist.goodness.of.fit(dm, adjusted_dm)
+#'
+dist.goodness.of.fit <- function(dm, adjusted_dm) {
+  if (!is.dist(dm) || !is.dist(adjusted_dm)) {
+    stop("'dm' and 'adjusted_dm' must both be distance matrices of class 'dist'.")
+  }
+  if (attr(dm, "Size") != attr(adjusted_dm, "Size")) {
+    stop("'dm' and 'adjusted_dm' must contain the same number of observations.")
+  }
+
+  # dist.sigma2() is proportional to distance-based total SS; the shared
+  # sample-size scaling cancels in SS_residual / SS_total.
+  ss_total <- dist.sigma2(dm)
+  ss_residual <- dist.sigma2(adjusted_dm)
+  goodness.of.fit <- if (ss_total == 0) NA_real_ else 1 - (ss_residual / ss_total)
+  attr(goodness.of.fit, "names") <- "Goodness of fit (R\u00B2) coefficient of prediction"
+  goodness.of.fit
+}
+
 #' Calculate Sum of Squares for Distance Matrix with Factor
 #'
 #' This function calculates the sum of squares for a given distance matrix,
@@ -224,15 +258,30 @@ a.dist = function(dm, formula, formula_data=parent.frame(), tol=10^-8)
   E <- (E + t(E))/2
 
   eig <- eigen(E)
-  eig$values[abs(eig$values) < tol] = 0
   lambda <- eig$values
 
-  if (any(lambda < 0)) {
-    warning(paste(sum(lambda < 0), "out of", length(lambda), "eigenvalues are negative!"))
+  below_tol <- abs(lambda) < tol
+  if (any(below_tol)) {
+    message(paste(
+      sum(below_tol), "out of", length(lambda),
+      "eigenvalues were smaller than 'tol' and were set to zero."
+    ))
+    if (missing(tol)) {
+      message("The default 'tol' is 1e-8; use a smaller 'tol' to retain more small eigenvalues.")
+    }
+    lambda[below_tol] <- 0
   }
 
-  non_negative <- lambda >= 0
-  w <- t(t(eig$vectors[, non_negative, drop = FALSE]) * sqrt(lambda[non_negative]))
+  negative <- lambda < 0
+  if (any(negative)) {
+    message(paste(
+      sum(negative), "out of", length(lambda),
+      "eigenvalues were negative and were set to zero."
+    ))
+    lambda[negative] <- 0
+  }
+
+  w <- t(t(eig$vectors) * sqrt(lambda))
   w <- stats::dist(w)
   attr(w, "Labels") <- attr(lhs, "Labels")
   return(w)

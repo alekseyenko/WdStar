@@ -114,6 +114,9 @@ Tw2.test <- function(dm, f, nrep = 999) {
 #'   \item \code{data.name}: a string describing the input data.
 #'   \item \code{statistic}: observed WdS test statistic.
 #'   \item \code{estimate}: Omega squared (\eqn{\omega^2}{\omega^2}) effect size estimate.
+#'   \item \code{goodness.of.fit}: (adjusted tests only) Goodness of fit
+#'          (\eqn{R^2}) coefficient of prediction computed as
+#'          \eqn{1 - SS_{residual}/SS_{total}}.
 #'   \item \code{p.value}: The p-value of the test.
 #'   \item \code{parameter}: A list of 2-4 containing:
 #'          \itemize{
@@ -170,6 +173,7 @@ Tw2.test <- function(dm, f, nrep = 999) {
 WdS.test <- function(dm, f, nrep=999, strata=NULL, formula=NULL, formula_data=parent.frame()){
   has_formula <- !is.null(formula)
   has_formula_data <- !missing(formula_data) && !is.null(formula_data)
+  original_dm <- dm
 
   if (!has_formula && has_formula_data) {
       stop("Both 'formula' and 'formula_data' must be provided together for a.dist() adjustment processing.")
@@ -212,6 +216,13 @@ WdS.test <- function(dm, f, nrep=999, strata=NULL, formula=NULL, formula_data=pa
   estimate <- (((length(levels(f))-1)*(unname(statistic)-1))/((length(levels(f))-1)*(unname(statistic) - 1) + attr(dm, "Size")))
   attr(estimate, "names") <- "Omega squared (\u03C9\u00B2) effect size"
 
+  goodness.of.fit <- NULL
+  if (has_formula) {
+    # Reuse the public helper so internal and user-computed adjusted tests use
+    # the same goodness-of-fit definition.
+    goodness.of.fit <- dist.goodness.of.fit(original_dm, dm)
+  }
+
   # P-value
   p.value <- test.results$p.value
 
@@ -228,6 +239,9 @@ WdS.test <- function(dm, f, nrep=999, strata=NULL, formula=NULL, formula_data=pa
                              c("number of permutations" = nrep)
                              )
                )
+  if (!is.null(goodness.of.fit)) {
+    TEST$goodness.of.fit <- goodness.of.fit
+  }
   class(TEST) <- c("wdstest", "htest")
   return(TEST)
 }
