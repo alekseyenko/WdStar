@@ -5,13 +5,33 @@
 #' @param x Object to test.
 #'
 #' @return Logical indicating whether the object is a distance matrix.
-#'
+#' @export
 #' @examples
 #'
 #' is.dist(as.dist(matrix(1:4, nrow = 2)))
 #' is.dist(matrix(1:4, nrow = 2))
 #'
 is.dist <- function(x) any(class(x) == "dist")
+
+.as_formula_data <- function(formula_data) {
+  if (is.environment(formula_data)) {
+    return(formula_data)
+  }
+
+  data <- tryCatch(
+    data.frame(formula_data, check.names = FALSE),
+    error = function(e) e
+  )
+
+  if (inherits(data, "error")) {
+    stop(
+      "'formula_data' must be an environment, data frame, list, or coercible to a data frame.",
+      call. = FALSE
+    )
+  }
+
+  data
+}
 
 #' Calculate Sigma Squared for Distance Matrix
 #'
@@ -20,7 +40,7 @@ is.dist <- function(x) any(class(x) == "dist")
 #' @param dm Distance matrix.
 #'
 #' @return Sigma squared value.
-#'
+#' @export
 #' @examples
 #'
 #' dm <- as.dist(matrix(runif(100), nrow = 10))
@@ -32,6 +52,40 @@ dist.sigma2 <- function(dm) {
   sum(dd^2) / nrow(dd) / (nrow(dd) - 1)
 }
 
+#' Calculate Goodness-of-Fit for Adjusted Distance Matrices
+#'
+#' This function computes the coefficient of determination (\eqn{R^2}) by
+#' comparing total variation in a raw distance matrix with residual variation in
+#' an adjusted distance matrix.
+#'
+#' @param dm The original/raw distance matrix.
+#' @param adjusted_dm The adjusted/residual distance matrix.
+#'
+#' @return Goodness-of-fit coefficient of determination (\eqn{R^2})
+#' @export
+#' @examples
+#' data(mtcars)
+#' dm <- dist(mtcars[1:3], method = "euclidean")
+#' adjusted_dm <- a.dist(dm, formula = ~ wt, formula_data = mtcars)
+#' dist.goodness.of.fit(dm, adjusted_dm)
+#'
+dist.goodness.of.fit <- function(dm, adjusted_dm) {
+  if (!is.dist(dm) || !is.dist(adjusted_dm)) {
+    stop("'dm' and 'adjusted_dm' must both be distance matrices of class 'dist'.")
+  }
+  if (attr(dm, "Size") != attr(adjusted_dm, "Size")) {
+    stop("'dm' and 'adjusted_dm' must contain the same number of observations.")
+  }
+
+  # dist.sigma2() is proportional to distance-based total SS; the shared
+  # sample-size scaling cancels in SS_residual / SS_total.
+  ss_total <- dist.sigma2(dm)
+  ss_residual <- dist.sigma2(adjusted_dm)
+  goodness.of.fit <- if (ss_total == 0) NA_real_ else 1 - (ss_residual / ss_total)
+  attr(goodness.of.fit, "names") <- "goodness-of-fit coefficient of determination (R\u00B2)"
+  goodness.of.fit
+}
+
 #' Calculate Sum of Squares for Distance Matrix with Factor
 #'
 #' This function calculates the sum of squares for a given distance matrix,
@@ -41,7 +95,7 @@ dist.sigma2 <- function(dm) {
 #' @param f Factor variable for weighting.
 #'
 #' @return Sum of squares matrix.
-#'
+#' @export
 #' @examples
 #'
 #' dm <- matrix(runif(100), nrow = 10)
@@ -62,7 +116,7 @@ dist.ss2 <- function(dm2, f) {
 #' @param f Factor variable for group definition.
 #'
 #' @return A diagonal matrix of group-wise sigma squared values.
-#'
+#' @export
 #' @examples
 #' \dontrun{
 #' dm <- as.dist(matrix(runif(100), nrow = 10))
@@ -82,9 +136,8 @@ dist.group.sigma2 <- function(dm, f) {
 #' @param f Factor variable with two levels.
 #'
 #' @return Cohen's d value if factor has exactly two levels; NULL otherwise.
-#'
+#' @export
 #' @examples
-#'
 #' dm <- as.dist(matrix(runif(100), nrow = 10))
 #' f <- factor(c(rep("A", 5), rep("B", 5)))
 #' dist.cohen.d(dm, f)
@@ -116,40 +169,47 @@ dist.cohen.d <- function(dm, f) {
 #'
 #' @param dm A distance matrix (any arbitrary distance or dissimilarity metric).
 #'
-#' @param formula Only the right hand side of a typical formula such as Y~ A is necessary.
-#'                The formula has similar requirements as in \code{vegan::adonis()} function.
+#' @param formula Only the right hand side of a typical formula such as Y~ A is
+#'   necessary. The formula has similar requirements as in
+#'   \code{vegan::adonis()} function.
 #'
-#' @param formula_data A dataset which contains the variables specified in formula.
-#'            It must be in a data.frame format with the row names the same as the
-#'            row names in distance matrix dm. This dataset should include both the
-#'            confounding covariate and the primary covariate.
-#'             If not provided, the parent data.frame will be used.
+#' @param formula_data A dataset which contains the variables specified in
+#'   formula. It may be an environment, data frame, list, or object coercible to
+#'   a data frame, such as \code{phyloseq::sample_data()}. Row names should match
+#'   the row names in distance matrix dm. This dataset should include both the
+#'   confounding covariate and the primary covariate. If not provided, the
+#'   parent frame will be used.
 #' @param tol Tolerance for eigenvalues. This is the cutoff for the eigenvalues
-#'            to be considered zero. Default is 10^-8.
+#'   to be considered zero. Default is 10^-8.
 #'
-#' @return Returns a distance matrix of class \code{dist} representing the Euclidean distances
+#' @return Returns a distance matrix of class \code{dist} representing the
+#'   Euclidean distances
 #'
-#' @details The \code{a.dist()} function only requires a right-hand side of the formula.
-#'          Instead of the left-hand side, it uses the dissimilarity distance matrix \code{dm}.
-#'          The function constructs a model matrix from the right-hand side (RHS)
-#'          of the formula. After performing necessary matrix operations and
-#'          eigen-decomposition, it calculates the Euclidean distances. It preserves the
-#'          labels of the input dm.
+#' @details The \code{a.dist()} function only requires a right-hand side of the
+#'   formula. Instead of the left-hand side, it uses the dissimilarity distance
+#'   matrix \code{dm}. The function constructs a model matrix from the
+#'   right-hand side (RHS) of the formula. After performing necessary matrix
+#'   operations and eigen-decomposition, it calculates the Euclidean distances.
+#'   It preserves the labels of the input dm.
 #'
-#'          This function refactors and generalizes functionality from \code{aPCoA::aPCoA()}
-#'          function in the aPCoA package.
-#' @references  Shi Y, Zhang L, Do KA, Peterson CB, Jenq RR. aPCoA: covariate adjusted principal coordinates analysis. Bioinformatics. 2020;36(13):4099-4101. doi:10.1093/bioinformatics/btaa276
+#'   This function refactors and generalizes functionality from
+#'   \code{aPCoA::aPCoA()} function in the aPCoA package.
+#' @references  Shi Y, Zhang L, Do KA, Peterson CB, Jenq RR. aPCoA: covariate
+#'   adjusted principal coordinates analysis. Bioinformatics.
+#'   2020;36(13):4099-4101. doi:10.1093/bioinformatics/btaa276
 #'
-#'              Shi Y (2021). aPCoA: Covariate Adjusted PCoA Plot. R package version 1.3, https://CRAN.R-project.org/package=aPCoA.
+#'   Shi Y (2021). aPCoA: Covariate Adjusted PCoA Plot. R package version 1.3,
+#'   https://CRAN.R-project.org/package=aPCoA.
 #'
-#'              Please cite both the package and the paper when using this function.
+#'   Please cite both the package and the paper when using this function.
 #'
 #' @export
 #' @examples
 #' data(mtcars)
 #'
-#' # The outcome could be a single variable or multiple variables (such as multidimensional omics data).
-
+#' # The outcome could be a single variable or multiple variables (such as
+#' # multidimensional omics data).
+#'
 #' ## This is an example with a single variable:
 #' dm <- dist(mtcars$mpg, method="euclidean")
 #'
@@ -160,13 +220,13 @@ dist.cohen.d <- function(dm, f) {
 #' # including factor, character, integer, and numeric.
 #' formula <- ~ as.factor(gear) + as.integer(hp) + wt
 #'
-#' #' # Create the adjusted distance matrix 'a.dm'
+#' # Create the adjusted distance matrix 'a.dm'
 #' a.dm <- a.dist(dm=dm, formula=formula, formula_data=mtcars)
 #' a.dm
 #'
 a.dist = function(dm, formula, formula_data=parent.frame(), tol=10^-8)
 {
-  data <- formula_data
+  data <- .as_formula_data(formula_data)
   Terms <- stats::terms(formula, data = data)
   # lhs <- formula[[2]]
   # lhs <- eval(lhs, data, parent.frame())
@@ -198,11 +258,27 @@ a.dist = function(dm, formula, formula_data=parent.frame(), tol=10^-8)
   E <- (E + t(E))/2
 
   eig <- eigen(E)
-  eig$values[abs(eig$values) < tol] = 0
   lambda <- eig$values
 
-  if (any(lambda < 0)) {
-    warning(paste(sum(lambda < 0), "out of", length(lambda), "eigenvalues are negative!"))
+  below_tol <- abs(lambda) < tol
+  if (any(below_tol)) {
+    message(paste(
+      sum(below_tol), "out of", length(lambda),
+      "eigenvalues were smaller than 'tol' and were set to zero."
+    ))
+    if (missing(tol)) {
+      message("The default 'tol' is 1e-8; use a smaller 'tol' to retain more small eigenvalues.")
+    }
+    lambda[below_tol] <- 0
+  }
+
+  negative <- lambda < 0
+  if (any(negative)) {
+    message(paste(
+      sum(negative), "out of", length(lambda),
+      "eigenvalues were negative and were set to zero."
+    ))
+    lambda[negative] <- 0
   }
 
   w <- t(t(eig$vectors) * sqrt(lambda))

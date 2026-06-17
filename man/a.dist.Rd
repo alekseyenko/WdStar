@@ -9,40 +9,45 @@ a.dist(dm, formula, formula_data = parent.frame(), tol = 10^-8)
 \arguments{
 \item{dm}{A distance matrix (any arbitrary distance or dissimilarity metric).}
 
-\item{formula}{Only the right hand side of a typical formula such as Y~ A is necessary.
-The formula has similar requirements as in \code{vegan::adonis()} function.}
+\item{formula}{Only the right hand side of a typical formula such as Y~ A is
+necessary. The formula has similar requirements as in
+\code{vegan::adonis()} function.}
 
-\item{formula_data}{A dataset which contains the variables specified in formula.
-It must be in a data.frame format with the row names the same as the
-row names in distance matrix dm. This dataset should include both the
-confounding covariate and the primary covariate.
- If not provided, the parent data.frame will be used.}
+\item{formula_data}{A dataset which contains the variables specified in
+formula. It may be an environment, data frame, list, or object coercible to
+a data frame, such as \code{phyloseq::sample_data()}. Row names should match
+the row names in distance matrix dm. This dataset should include both the
+confounding covariate and the primary covariate. If not provided, the
+parent frame will be used.}
 
 \item{tol}{Tolerance for eigenvalues. This is the cutoff for the eigenvalues
 to be considered zero. Default is 10^-8.}
 }
 \value{
-Returns a distance matrix of class \code{dist} representing the Euclidean distances
+Returns a distance matrix of class \code{dist} representing the
+  Euclidean distances
 }
 \description{
 This function takes in a formula and distance matrix, adjusts for covariates,
 performs PCoA, and returns the resulting corrected matrix.
 }
 \details{
-The \code{a.dist()} function only requires a right-hand side of the formula.
-         Instead of the left-hand side, it uses the dissimilarity distance matrix \code{dm}.
-         The function constructs a model matrix from the right-hand side (RHS)
-         of the formula. After performing necessary matrix operations and
-         eigen-decomposition, it calculates the Euclidean distances. It preserves the
-         labels of the input dm.
+The \code{a.dist()} function only requires a right-hand side of the
+  formula. Instead of the left-hand side, it uses the dissimilarity distance
+  matrix \code{dm}. The function constructs a model matrix from the
+  right-hand side (RHS) of the formula. After performing necessary matrix
+  operations and eigen-decomposition, it calculates the Euclidean distances.
+  It preserves the labels of the input dm.
 
-         This function refactors and generalizes functionality from \code{aPCoA::aPCoA()}
-         function in the aPCoA package.
+  This function refactors and generalizes functionality from
+  \code{aPCoA::aPCoA()} function in the aPCoA package.
 }
 \examples{
 data(mtcars)
 
-# The outcome could be a single variable or multiple variables (such as multidimensional omics data).
+# The outcome could be a single variable or multiple variables (such as
+# multidimensional omics data).
+
 ## This is an example with a single variable:
 dm <- dist(mtcars$mpg, method="euclidean")
 
@@ -53,15 +58,18 @@ dm <- dist(mtcars[1:3], method="euclidean")
 # including factor, character, integer, and numeric.
 formula <- ~ as.factor(gear) + as.integer(hp) + wt
 
-#' # Create the adjusted distance matrix 'a.dm'
+# Create the adjusted distance matrix 'a.dm'
 a.dm <- a.dist(dm=dm, formula=formula, formula_data=mtcars)
 a.dm
 
 }
 \references{
-Shi Y, Zhang L, Do KA, Peterson CB, Jenq RR. aPCoA: covariate adjusted principal coordinates analysis. Bioinformatics. 2020;36(13):4099-4101. doi:10.1093/bioinformatics/btaa276
+Shi Y, Zhang L, Do KA, Peterson CB, Jenq RR. aPCoA: covariate
+  adjusted principal coordinates analysis. Bioinformatics.
+  2020;36(13):4099-4101. doi:10.1093/bioinformatics/btaa276
 
-             Shi Y (2021). aPCoA: Covariate Adjusted PCoA Plot. R package version 1.3, https://CRAN.R-project.org/package=aPCoA.
+  Shi Y (2021). aPCoA: Covariate Adjusted PCoA Plot. R package version 1.3,
+  https://CRAN.R-project.org/package=aPCoA.
 
-             Please cite both the package and the paper when using this function.
+  Please cite both the package and the paper when using this function.
 }

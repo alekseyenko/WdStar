@@ -3,3 +3,9 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
+^\.positai$
+^\.github$
+^\.DS_Store$
+^tests/\.DS_Store$
+^publications$
+^shinyApp$

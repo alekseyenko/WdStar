@@ -2,19 +2,6 @@
 
 # $W_d^*$: distance-based multivariate analysis of variance for multivariate data
 
-## September 2025 Updates:
-In version 2.3.0 we update exisiting functions and introduce new ones. Changes include:
-  - Allows [installation of R package using `remotes::install_github()`](https://github.com/alekseyenko/WdStar?tab=readme-ov-file#installation)
-  - Package versioning  
-  - Addition of function to to peform covariate-adjusted tests using `WdS.test()` 
-  - Addition of effect-size using omega squared
-  - Addition of between degrees of freedom
-  - Changes of parameters within the `a.dist()` function to not request duplicate objects
-  - Error and datatype handling improvements
-  - Improvements to outputs including `a.dist()` and `WdS.test()`
-  - Revamped help files and updated examples for `a.dist()` and `WdS.test()`
-
-
 ## Introduction 
 
 `WdStar` is an R package for $W_d^*$, a method for multivariate analysis of variance based on Welch's MANOVA designed to address challenges of existing methods including PERMANOVA.
@@ -27,12 +14,12 @@ In version 2.3.0 we update exisiting functions and introduce new ones. Changes i
 >- handles multi-level factors and stratification;
 >- allows for multiple post hoc testing scenarios;
 >- allows for adjustment of covariates; and
->- compatible with any data type.
+>- can be used with any distance or dissimilarity matrix.
 
 
 ## Peer-Reviewed Publications on the $W_d^*$-test Family  
 **Preprint: Covariate-adjusted $W_d^*$ for robust distance-based multivariate analysis for omics data**  
-- [Hamidi B, Fanning L, Wallace K, & Alekseyenko AV. *Bioinformatics.* 2026.](https://doi.org/)
+- Hamidi B, Fanning L, Wallace K, & Alekseyenko AV. *Bioinformatics.* 2026. DOI forthcoming.
 - [Code repository](https://github.com/alekseyenko/WdStar/tree/master/publications/Hamidi%20et%20al.%20Bioinformatics%20(2026))
 
 
@@ -46,13 +33,15 @@ In version 2.3.0 we update exisiting functions and introduce new ones. Changes i
 - [Code repository](https://github.com/alekseyenko/Tw2)
 
 ## Installation  
-Source installation of `WdStar` R package is available directly from GitHub using `remotes` for R 3.4 or later:
+Source installation of the `WdStar` R package is available directly from GitHub using `remotes` for R 3.6 or later:
 ```R
 install.packages("remotes")
-remotes::install_github("alekseyenko/WdStar", force=T)
+remotes::install_github("alekseyenko/WdStar", force = TRUE)
 library(WdStar)
 packageVersion("WdStar")
 ```
+
+Until a CRAN release is available, install `WdStar` from GitHub as shown above.
 
 
 ## Quick Start  
@@ -60,7 +49,7 @@ packageVersion("WdStar")
 For detailed and complex examples please refer to [our publication repositories](https://github.com/alekseyenko?tab=readme-ov-file#peer-reviewed-publications-on-the-w_d-test-family), which contain Markdown files with application datasets and code.
 
 
-The following is a simple example using the `mtcars` dataset to assess the effect of `gears` on `mpg`, `cyl`, and `disp` (first three variables of the dataset):   
+The following is a simple example using the `mtcars` dataset to assess the effect of `gear` on `mpg`, `cyl`, and `disp` (first three variables of the dataset):   
 
 ```R
 # Load dataset
@@ -94,15 +83,22 @@ formula <- ~ wt + as.factor(am)
 ## Adjustment example 1: pass unadjusted `dm` and formula to WdS.test()
 WdS.test(dm=dm, f=f, formula=formula, formula_data=mtcars) ## Perform adjusted test
 
+## Note that the output includes goodness.of.fit computed from raw and adjusted  
+##  distances, which can be used to assess the impact of adjustment on the data.  
+
 ## Adjustment example 2: Create the adjusted distance matrix `a.dm` outside the function
 a.dm <- a.dist(dm=dm, formula=formula, formula_data=mtcars) 
 WdS.test(dm=a.dm, f=f) ## Perform adjusted test with `a.dm`
+
+## Goodness of fit can also be computed from raw and adjusted distances directly
+dist.goodness.of.fit(dm=dm, adjusted_dm=a.dm)
 ```
 
 Further examples are provided in the package documentation and may be accessed by running the following commands:
 ```R
 ?WdS.test
 ?a.dist
+?dist.goodness.of.fit
 ```
 
 ## Feature Requests and Bugs

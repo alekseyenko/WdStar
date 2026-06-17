@@ -16,15 +16,15 @@ The calculated Wd* statistic.
 }
 \description{
 This function calculates the Wd* statistic to compare means of k populations
-with potentially unequal variances and observations. It is suitable for microbiome data
-and utilizes permutation testing for significance estimation.
+with potentially unequal variances and observations. It is suitable for
+microbiome data and utilizes permutation testing for significance estimation.
 }
 \details{
-This function is an extension of Welch's ANOVA statistic suitable for multivariate
-data and specifically for microbiome data. The Wd* statistic is computed based on
-pairwise square differences between group means and variances. It explicitly accounts
-for potentially unbalanced number of observations and differences in multivariate
-spread in the two samples.
+This function is an extension of Welch's ANOVA statistic suitable for
+multivariate data and specifically for microbiome data. The Wd* statistic is
+computed based on pairwise square differences between group means and
+variances. It explicitly accounts for potentially unbalanced number of
+observations and differences in multivariate spread in the two samples.
 }
 \examples{
 \dontrun{
@@ -37,7 +37,8 @@ WdS_stat <- WdS(dm, f)
 
 }
 \references{
-Hamidi, Bashir, et al. "$ W_ {d}^{*} $-test: robust distance-based multivariate analysis of variance." Microbiome 7.1 (2019): 1-9.
+Hamidi, Bashir, et al. "$ W_ {d}^{*} $-test: robust distance-based
+multivariate analysis of variance." Microbiome 7.1 (2019): 1-9.
 }
 \seealso{
 \url{https://github.com/alekseyenko/WdStar}
