@@ -10,7 +10,8 @@ WdS.test(
   nrep = 999,
   strata = NULL,
   formula = NULL,
-  formula_data = parent.frame()
+  formula_data = parent.frame(),
+  ...
 )
 }
 \arguments{
@@ -26,14 +27,19 @@ Default is NULL.}
 
 \item{formula}{(optional) A right-hand side ONLY formula to be used with
 'formula_data' for confounder adjustment/elimination from `dm`. Results in
-adjusted WdS statistic, Omega squared (\eqn{\omega^2}{\omega^2}) effect
-size estimate, and p-value. Note that you may use any data type including
-factor, character, integer, and numeric. Default is NULL}
+adjusted WdS statistic, omega-squared (\eqn{\omega^2}{\omega^2}) effect
+size estimate, goodness-of-fit coefficient of determination (\eqn{R^2}),
+and p-value. Note that you may use any data type including factor,
+character, integer, and numeric. Default is NULL}
 
 \item{formula_data}{(optional) An environment, data frame, list, or object
 coercible to a data frame, such as \code{phyloseq::sample_data()}, to be
 used in conjunction with 'formula' for confounder adjustment. Default is
 parent.frame()}
+
+\item{...}{Additional arguments passed to \code{\link{a.dist}()}, such as
+\code{tol} (tolerance for eigenvalues; default \code{1e-8}). Only used
+when \code{formula} is provided.}
 }
 \value{
 A list containing:
@@ -41,10 +47,11 @@ A list containing:
   \item \code{method}: name of the method used.
   \item \code{data.name}: a string describing the input data.
   \item \code{statistic}: observed WdS test statistic.
-  \item \code{estimate}: Omega squared (\eqn{\omega^2}{\omega^2}) effect size estimate.
-  \item \code{goodness.of.fit}: (adjusted tests only) Goodness of fit
-         (\eqn{R^2}) coefficient of prediction computed as
-         \eqn{1 - SS_{residual}/SS_{total}}.
+  \item \code{estimate}: effect size estimator of variance, omega-squared (\eqn{\omega^2}{\omega^2}).
+  \item \code{goodness.of.fit}: goodness-of-fit coefficient of determination
+  (\eqn{R^2}), computed with \code{\link{dist.goodness.of.fit}} as
+  \eqn{1 - SS_{residual}/SS_{total}} for adjusted tests; \code{NULL} for
+  unadjusted tests.
   \item \code{p.value}: The p-value of the test.
   \item \code{parameter}: A list of 2-4 containing:
          \itemize{
@@ -118,5 +125,5 @@ WdS.test(dm=a.dm, f=f) ## Perform adjusted test with `a.dm`
 }
 \seealso{
 \code{\link{generic.distance.permutation.test}}, \code{\link{Tw2.test}},
-         \code{\link{a.dist}}
+         \code{\link{a.dist}}, \code{\link{dist.goodness.of.fit}}
 }

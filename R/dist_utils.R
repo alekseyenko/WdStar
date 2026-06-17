@@ -52,16 +52,16 @@ dist.sigma2 <- function(dm) {
   sum(dd^2) / nrow(dd) / (nrow(dd) - 1)
 }
 
-#' Calculate Goodness of Fit for Adjusted Distance Matrices
+#' Calculate Goodness-of-Fit for Adjusted Distance Matrices
 #'
-#' This function computes the coefficient of prediction (\eqn{R^2}) by
+#' This function computes the coefficient of determination (\eqn{R^2}) by
 #' comparing total variation in a raw distance matrix with residual variation in
 #' an adjusted distance matrix.
 #'
 #' @param dm The original/raw distance matrix.
 #' @param adjusted_dm The adjusted/residual distance matrix.
 #'
-#' @return Goodness of fit (\eqn{R^2}) coefficient of prediction.
+#' @return Goodness-of-fit coefficient of determination (\eqn{R^2})
 #' @export
 #' @examples
 #' data(mtcars)
@@ -82,7 +82,7 @@ dist.goodness.of.fit <- function(dm, adjusted_dm) {
   ss_total <- dist.sigma2(dm)
   ss_residual <- dist.sigma2(adjusted_dm)
   goodness.of.fit <- if (ss_total == 0) NA_real_ else 1 - (ss_residual / ss_total)
-  attr(goodness.of.fit, "names") <- "Goodness of fit (R\u00B2) coefficient of prediction"
+  attr(goodness.of.fit, "names") <- "goodness-of-fit coefficient of determination (R\u00B2)"
   goodness.of.fit
 }
 

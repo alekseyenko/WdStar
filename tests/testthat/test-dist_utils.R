@@ -105,10 +105,10 @@ test_that("WdS.test reports goodness of fit only for adjusted tests", {
     formula = ~ adjustment
   ))
 
-  expect_false("goodness.of.fit" %in% names(unadjusted_result))
-  expect_named(unadjusted_result$estimate, "Omega squared (\u03C9\u00B2) effect size")
-  expect_named(adjusted_result$estimate, "Omega squared (\u03C9\u00B2) effect size")
-  expect_named(adjusted_result$goodness.of.fit, "Goodness of fit (R\u00B2) coefficient of prediction")
+  expect_null(unadjusted_result$goodness.of.fit)
+  expect_named(unadjusted_result$estimate, "effect size estimator of variance, omega-squared (\u03C9\u00B2)")
+  expect_named(adjusted_result$estimate, "effect size estimator of variance, omega-squared (\u03C9\u00B2)")
+  expect_named(adjusted_result$goodness.of.fit, "goodness-of-fit coefficient of determination (R\u00B2)")
   expect_equal(unname(adjusted_result$goodness.of.fit), unname(expected_r_squared))
 })
 
@@ -119,7 +119,7 @@ test_that("dist.goodness.of.fit computes R squared for raw and adjusted distance
 
   result <- dist.goodness.of.fit(distance_matrix, adjusted_dm)
 
-  expect_named(result, "Goodness of fit (R\u00B2) coefficient of prediction")
+  expect_named(result, "goodness-of-fit coefficient of determination (R\u00B2)")
   expect_equal(unname(result), expected_r_squared)
 })
 

@@ -101,22 +101,27 @@ Tw2.test <- function(dm, f, nrep = 999) {
 #'   Default is NULL.
 #' @param formula (optional) A right-hand side ONLY formula to be used with
 #'   'formula_data' for confounder adjustment/elimination from `dm`. Results in
-#'   adjusted WdS statistic, Omega squared (\eqn{\omega^2}{\omega^2}) effect
-#'   size estimate, and p-value. Note that you may use any data type including
-#'   factor, character, integer, and numeric. Default is NULL
+#'   adjusted WdS statistic, omega-squared (\eqn{\omega^2}{\omega^2}) effect
+#'   size estimate, goodness-of-fit coefficient of determination (\eqn{R^2}),
+#'   and p-value. Note that you may use any data type including factor,
+#'   character, integer, and numeric. Default is NULL
 #' @param formula_data (optional) An environment, data frame, list, or object
 #'   coercible to a data frame, such as \code{phyloseq::sample_data()}, to be
 #'   used in conjunction with 'formula' for confounder adjustment. Default is
 #'   parent.frame()
+#' @param ... Additional arguments passed to \code{\link{a.dist}()}, such as
+#'   \code{tol} (tolerance for eigenvalues; default \code{1e-8}). Only used
+#'   when \code{formula} is provided.
 #' @return A list containing:
 #' \itemize{
 #'   \item \code{method}: name of the method used.
 #'   \item \code{data.name}: a string describing the input data.
 #'   \item \code{statistic}: observed WdS test statistic.
-#'   \item \code{estimate}: Omega squared (\eqn{\omega^2}{\omega^2}) effect size estimate.
-#'   \item \code{goodness.of.fit}: (adjusted tests only) Goodness of fit
-#'          (\eqn{R^2}) coefficient of prediction computed as
-#'          \eqn{1 - SS_{residual}/SS_{total}}.
+#'   \item \code{estimate}: effect size estimator of variance, omega-squared (\eqn{\omega^2}{\omega^2}).
+#'   \item \code{goodness.of.fit}: goodness-of-fit coefficient of determination
+#'   (\eqn{R^2}), computed with \code{\link{dist.goodness.of.fit}} as
+#'   \eqn{1 - SS_{residual}/SS_{total}} for adjusted tests; \code{NULL} for
+#'   unadjusted tests.
 #'   \item \code{p.value}: The p-value of the test.
 #'   \item \code{parameter}: A list of 2-4 containing:
 #'          \itemize{
@@ -128,7 +133,7 @@ Tw2.test <- function(dm, f, nrep = 999) {
 #' }
 #'
 #' @seealso \code{\link{generic.distance.permutation.test}}, \code{\link{Tw2.test}},
-#'          \code{\link{a.dist}}
+#'          \code{\link{a.dist}}, \code{\link{dist.goodness.of.fit}}
 #' @importFrom stats terms
 #' @export
 #' @examples
@@ -170,7 +175,7 @@ Tw2.test <- function(dm, f, nrep = 999) {
 #' a.dm <- a.dist(dm=dm, formula=formula, formula_data=mtcars)
 #' WdS.test(dm=a.dm, f=f) ## Perform adjusted test with `a.dm`
 #'
-WdS.test <- function(dm, f, nrep=999, strata=NULL, formula=NULL, formula_data=parent.frame()){
+WdS.test <- function(dm, f, nrep=999, strata=NULL, formula=NULL, formula_data=parent.frame(), ...){
   has_formula <- !is.null(formula)
   has_formula_data <- !missing(formula_data) && !is.null(formula_data)
   original_dm <- dm
@@ -180,7 +185,7 @@ WdS.test <- function(dm, f, nrep=999, strata=NULL, formula=NULL, formula_data=pa
    }
   if (has_formula) {
     data <- .as_formula_data(formula_data)
-    dm <- a.dist(dm, formula, data)
+    dm <- a.dist(dm, formula, data, ...)
   }
   test.results <- generic.distance.permutation.test(WdS, dm=dm, f=f, nrep=nrep, strata=strata)
 
@@ -212,14 +217,13 @@ WdS.test <- function(dm, f, nrep=999, strata=NULL, formula=NULL, formula_data=pa
   statistic <- test.results$statistic
   attr(statistic, "names") <- "WdS"
 
-  # Estimate using omega squared
+  # Effect size estimator of variance, omega-squared
   estimate <- (((length(levels(f))-1)*(unname(statistic)-1))/((length(levels(f))-1)*(unname(statistic) - 1) + attr(dm, "Size")))
-  attr(estimate, "names") <- "Omega squared (\u03C9\u00B2) effect size"
+  attr(estimate, "names") <- "effect size estimator of variance, omega-squared (\u03C9\u00B2)"
 
+  # Goodness-of-fit using coefficient of determination (R-squared)
   goodness.of.fit <- NULL
   if (has_formula) {
-    # Reuse the public helper so internal and user-computed adjusted tests use
-    # the same goodness-of-fit definition.
     goodness.of.fit <- dist.goodness.of.fit(original_dm, dm)
   }
 
@@ -230,6 +234,7 @@ WdS.test <- function(dm, f, nrep=999, strata=NULL, formula=NULL, formula_data=pa
   TEST <- list(method = method, data.name = data.name, # null.value = null.value, # alternative = alternative,
                statistic = statistic, p.value = p.value,
                estimate = estimate,
+               goodness.of.fit = goodness.of.fit,
                parameter = c(if(!is.null(strata)){c("strata"= deparse(substitute(strata)))},
                              if(!is.null(formula)){c("formula"= paste0(deparse(substitute(formula)),
                                                                        " with ",
@@ -239,9 +244,17 @@ WdS.test <- function(dm, f, nrep=999, strata=NULL, formula=NULL, formula_data=pa
                              c("number of permutations" = nrep)
                              )
                )
-  if (!is.null(goodness.of.fit)) {
-    TEST$goodness.of.fit <- goodness.of.fit
-  }
+
   class(TEST) <- c("wdstest", "htest")
   return(TEST)
+}
+
+#' @export
+print.wdstest <- function(x, ...) {
+  NextMethod()
+  if (!is.null(x$goodness.of.fit)) {
+    cat("goodness-of-fit (R\u00B2 of adjusted vs. original distances):",
+        format(x$goodness.of.fit, digits = 4), "\n")
+  }
+  invisible(x)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/dist_utils.R
 \name{dist.goodness.of.fit}
 \alias{dist.goodness.of.fit}
-\title{Calculate Goodness of Fit for Adjusted Distance Matrices}
+\title{Calculate Goodness-of-Fit for Adjusted Distance Matrices}
 \usage{
 dist.goodness.of.fit(dm, adjusted_dm)
 }
@@ -12,10 +12,10 @@ dist.goodness.of.fit(dm, adjusted_dm)
 \item{adjusted_dm}{The adjusted/residual distance matrix.}
 }
 \value{
-Goodness of fit (\eqn{R^2}) coefficient of prediction.
+Goodness-of-fit coefficient of determination (\eqn{R^2})
 }
 \description{
-This function computes the coefficient of prediction (\eqn{R^2}) by
+This function computes the coefficient of determination (\eqn{R^2}) by
 comparing total variation in a raw distance matrix with residual variation in
 an adjusted distance matrix.
 }
