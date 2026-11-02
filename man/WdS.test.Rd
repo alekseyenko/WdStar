@@ -245,55 +245,47 @@ if (requireNamespace("phyloseq", quietly = TRUE)) {
   ## Use the full enterotype data after removing samples without Enterotype.
   ent <- phyloseq::subset_samples(enterotype, !is.na(Enterotype))
   dm <- phyloseq::distance(ent, method = "bray")
+
   ###########################################################
   ###########################################################
   ## (Eg 1) Basic multivariate test:
   res_unadjusted <-
-    WdS.test(
-      dm = dm,
-      group = Enterotype,
-      data = ent, # Can directly use phyloseq object or phyloseq::sample_data(ent)
-      nrep = 9) # Change nrep to 999 or more for a real analysis
+    WdS.test(dm = dm,
+             group = Enterotype,
+             data = ent,
+             nrep = 1) # Change nrep to 999 or more for a real analysis
   ### Data parameter can be given as a data frame, list, or phyloseq object.
 
-  ### Goodness-of-Fit:
-  #### By default, the unadjusted test's goodness.of.fit reports the
-  #### distance-based pseudo-R-squared for the tested group.
-  #### goodness.of.fit contains the selected values;
-  #### goodness.components contains all components calculated for this test.
-  res_unadjusted$goodness.components
-
-  ### use goodness = "all" to request all available goodness-of-fit components.
-  ### Use goodness = "none" to skip goodness-of-fit calculations.
-  WdS.test(
-    dm = dm,
-    group = Enterotype,
-    data = phyloseq::sample_data(ent),
-    goodness = "none", # goodness = "all",
-    nrep = 9)
   ###########################################################
   ###########################################################
   ## (Eg 2) Stratified permutation example:
   ### This restricts permutations within sequencing technology.
   ### Stratification does not change statistics, estimate, or goodness-of-fit.
   res_stratified <-
-    WdS.test(
-      dm = dm,
-      group = Enterotype,
-      strata = SeqTech,
-      data = phyloseq::sample_data(ent),
-      nrep = 9)
+    WdS.test(dm = dm,
+             group = Enterotype,
+             strata = SeqTech,
+             data = phyloseq::sample_data(ent),
+             nrep = 1)
 
   ###########################################################
   ###########################################################
   ## (Eg 3) Covariate adjustment by a categorical covariate (sequencing technology):
   res_adj_categorical <-
-    WdS.test(
-      dm = dm,
-      group = Enterotype,
-      adjustment = ~SeqTech,
-      data = phyloseq::sample_data(ent),
-      nrep = 9)
+    WdS.test(dm = dm,
+             group = Enterotype,
+             adjustment = ~SeqTech,
+             data = ent,
+             goodness = "all", ## goodness = "none"
+             nrep = 1)
+
+  ### Goodness-of-Fit:
+  #### By default, the unadjusted test's goodness.of.fit reports the
+  ####    distance-based pseudo-R-squared for the tested group.
+  #### Use goodness = "all" to request all available components, or
+  ####   goodness = "none" to skip the computations.
+  #### goodness.components contains all components calculated for this test.
+  res_adj_categorical$goodness.components
 
   ### Get distance diagnostics
   res_adj_categorical$distance.diagnostics
@@ -305,18 +297,16 @@ if (requireNamespace("phyloseq", quietly = TRUE)) {
   ### builds a matching age-complete distance matrix before using Age in the
   ### adjustment formula.
   ent_age <-
-    phyloseq::subset_samples(
-      enterotype,
-      !is.na(Enterotype) & !is.na(Age)
-    )
+    phyloseq::subset_samples(enterotype,
+                             !is.na(Enterotype) & !is.na(Age))
   dm_age <- phyloseq::distance(ent_age, method = "bray")
+
   res_adj_continuous <-
-    WdS.test(
-      dm = dm_age,
-      group = Enterotype,
-      adjustment = ~Age,
-      data = phyloseq::sample_data(ent_age),
-      nrep = 9)
+    WdS.test(dm = dm_age,
+             group = Enterotype,
+             adjustment = ~Age,
+             data = ent_age,
+             nrep = 1)
 
   ###########################################################
   ###########################################################
@@ -324,17 +314,17 @@ if (requireNamespace("phyloseq", quietly = TRUE)) {
   ## function, then pass dm to WdS.test():
   ### First build adjusted dm
   a.dm <-
-    a.dist(
-      dm = dm,
-      adjustment = ~SeqTech,
-      data = phyloseq::sample_data(ent))
+    a.dist(dm = dm,
+           adjustment = ~SeqTech,
+           data = phyloseq::sample_data(ent))
+
   ### Then use adjusted dm in testing
   res_eg5 <-
-    WdS.test(
-      dm = a.dm,
-      group = Enterotype,
-      data = phyloseq::sample_data(ent),
-      nrep = 9)
+    WdS.test(dm = a.dm,
+             group = Enterotype,
+             data = phyloseq::sample_data(ent),
+             nrep = 1)
+
   ### You can get the diagnostics of adjusted dm
   # attr(a.dm, "distance.diagnostics")
 
