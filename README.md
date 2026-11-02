@@ -94,22 +94,23 @@ dm <- phyloseq::distance(ent, method = "bray")
       WdS.test(dm = dm,
                group = Enterotype,
                adjustment = ~SeqTech,
-               data = ent))
+               data = ent,
+               goodness = "all", ## goodness = "none"
+               ))
 
-###########################################################
-###########################################################
-## Goodness-of-fit pseudo-R^2 components
-### By default, goodness.of.fit reports the R^2 value of the tested group's for 
-###    an unadjusted test and semi-partial R^2 of the tested group for an adjusted test.
 
-### Request all available goodness-of-fit components:
-###    group-only, adjustment-only, full-model, semi-partial, and partial
-WdS.test(..., goodness = "all")
+## Goodness-of-fit pseudo-R^2 components:
+#### By default, goodness.of.fit reports the R^2 value of the tested group's for 
+####    an unadjusted test and semi-partial R^2 of the tested group for an adjusted test.
 
-###########################################################
-###########################################################
+#### Use goodness = "all" to request all available components, or goodness = "none"
+####    to skip the computations.
+res_adjusted$goodness.components
+
+
 ## Get distance diagnostics
-### Eigenvalue and tolerance diagnostics for residual distance matrices are stored in the distance.diagnostics slot of the WdS.test output object.
+#### Eigenvalue and tolerance diagnostics for residual distance matrices are stored in the
+####    distance.diagnostics slot of the WdS.test output object.
 res_adjusted$distance.diagnostics
 ```
 

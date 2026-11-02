@@ -158,7 +158,7 @@ Tw2.test <- function(dm, f, nrep = 999) {
 #' limited to 30 characters for display; full labels are retained in the result.
 #' Variable names and conventional mathematical notation preserve their case.
 #'
-#' The effect size \eqn{R^2}omega-squared is estimated from the observed WdS statistic:
+#' The effect size \eqn{R^2} is estimated from the observed WdS statistic:
 #' \deqn{\widehat{\omega}^2 =
 #' \frac{(k-1)(W_d^*-1)}{(k-1)(W_d^*-1)+N},}
 #' where \eqn{k} is the number of tested group levels and \eqn{N} the sample size.
@@ -389,12 +389,12 @@ Tw2.test <- function(dm, f, nrep = 999) {
 #'              goodness = "all", ## goodness = "none"
 #'              nrep = 1)
 #'
-#'   ### Goodness-of-Fit:
-#'   #### By default, the unadjusted test's goodness.of.fit reports the
-#'   ####    distance-based pseudo-R-squared for the tested group.
+#'   ### Goodness-of-fit pseudo-R^2 components:
+#'   #### By default, goodness.of.fit reports the R^2 value of the tested
+#'   ####    group's for an unadjusted test and semi-partial R^2 of the tested
+#'   ####    group for an adjusted test.
 #'   #### Use goodness = "all" to request all available components, or
-#'   ####   goodness = "none" to skip the computations.
-#'   #### goodness.components contains all components calculated for this test.
+#'   ####    goodness = "none" to skip the computations.
 #'   res_adj_categorical$goodness.components
 #'
 #'   ### Get distance diagnostics

@@ -7,7 +7,7 @@ test_that("component tables use actual model labels and the simplified schema", 
     WdS.test(dm, Enterotype, adjustment = adjustment, data = meta,
              nrep = 0, goodness = goodness, keep.eigenvalues = TRUE))
   x <- fit()
-  expect_named(x$goodness.components, c("component", "pseudo.R2", "model", "displayed"))
+  expect_named(x$goodness.components, c("component", "model", "pseudo.R2", "displayed"))
   expect_identical(x$goodness.components$model, c("~ Enterotype", "~ SeqTech",
     "~ SeqTech + Enterotype", "(Enterotype | SeqTech) / total",
     "(Enterotype | SeqTech) / residual"))
