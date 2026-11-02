@@ -44,8 +44,9 @@ if (requireNamespace("phyloseq", quietly = TRUE)) {
 
 }
 \references{
-Hamidi, Bashir, et al. "$ W_ {d}^{*} $-test: robust distance-based
-multivariate analysis of variance." Microbiome 7.1 (2019): 1-9.
+Hamidi Bashir, Wallace K, Vasu C, Alekseyenko AV. The
+\eqn{\mathnormal{W}_d^*}-test: robust distance-based multivariate analysis
+of variance. \emph{Microbiome}. 2019;7:51.
 }
 \seealso{
 \code{\link{WdS.test}}, \code{\link{Tw2}},

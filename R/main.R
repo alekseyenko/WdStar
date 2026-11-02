@@ -91,9 +91,9 @@ Tw2 <- function(dm, f) {
 #'   print(WdS(dm, group = group))
 #' }
 #'
-#' @references
-#' Hamidi, Bashir, et al. "$ W_ {d}^{*} $-test: robust distance-based
-#' multivariate analysis of variance." Microbiome 7.1 (2019): 1-9.
+#' @references Hamidi Bashir, Wallace K, Vasu C, Alekseyenko AV. The
+#' \eqn{\mathnormal{W}_d^*}-test: robust distance-based multivariate analysis
+#' of variance. \emph{Microbiome}. 2019;7:51.
 #'
 #' @seealso \code{\link{WdS.test}}, \code{\link{Tw2}},
 #'   \url{https://github.com/alekseyenko/WdStar}

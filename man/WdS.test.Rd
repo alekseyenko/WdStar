@@ -32,10 +32,13 @@ This may be a vector/factor, an unquoted column name in \code{data}, or a
 length-one character column name in \code{data}. Default is \code{NULL}.}
 
 \item{adjustment}{(optional) A right-hand-side formula specifying covariates
-to remove from \code{dm} before testing \code{group}. For example, \code{~
-SeqTech}, \code{~ Age + SeqTech}, or \code{~ Age * SeqTech}. Note that you
-may use any data type supported by \code{model.matrix()}, including factor,
-character, integer, and numeric variables. Default is \code{NULL}.}
+to remove from \code{dm} before testing \code{group}. Formula is passed to
+\code{\link{a.dist}} to project residual matrices before the test is
+performed. Users may also make adjustments outside the function with
+\code{\link{a.dist}} and then pass the adjusted distance matrix to
+\code{WdS.test()}. Note that you may use any data type supported by
+\code{model.matrix()}, including factor, character, integer, and numeric
+variables. Default is \code{NULL}.}
 
 \item{data}{(optional) An environment, data frame, list, or object coercible
 to a data frame, such as \code{phyloseq::sample_data()}. Variables in
@@ -106,7 +109,8 @@ A list containing:
 }
 }
 \description{
-This function performs the \eqn{\mathnormal{W}_d^*} test statistic for
+This function performs the multivariate Welch ANOVA \eqn{\mathnormal{W}_d^*} test using
+optional stratified restricted permutations and confounder elimination for
 k-group comparison using a given distance matrix.
 }
 \details{
@@ -114,75 +118,24 @@ This method uses permutation testing to establish the significance by
 computing \eqn{\mathnormal{W}_d^*} statistic on \eqn{\mathnormal{m}}
 permutations of the original data and estimate the significance as the
 fraction of times the permuted statistic is greater than or equal to
-\eqn{\mathnormal{W}_d}.
+\eqn{\mathnormal{W}_d^*} (see \code{\link{WdS}} for details).
 
 Our approach can accommodate multi-level factors, stratification (via
 restricted permutations), multiple post-hoc testing scenarios, and covariate
-adjustment/ elimination (via projection of residuals).
+adjustment/ elimination by projection of residuals from the distance matrix
+(see \code{\link{a.dist}} for details).
 
 The preferred interface is \code{group} for the tested grouping variable,
 \code{adjustment} for optional covariates to remove, and \code{data} for
-sample metadata. For example, \code{group = Enterotype} and \code{adjustment
-= ~ Age + SeqTech} test Enterotype after removing variation associated with
-Age and sequencing technology. The \code{adjustment} formula is passed to
-\code{\link{a.dist}} to project residual matrices before the test is
-performed. Users may also make adjustments outside the function with
-\code{\link{a.dist}} and then pass the adjusted distance matrix to
-\code{WdS.test()}.
+sample metadata. Deprecated function parameter names \code{f}, \code{formula},
+and \code{formula_data} may still be supplied through \code{...}.
 
-For compatibility with earlier versions, \code{f}, \code{formula}, and
-\code{formula_data} may still be supplied as named arguments through
-\code{...}. These names are deprecated in \code{WdS.test()}; use
-\code{group}, \code{adjustment}, and \code{data} instead.
+Printed output shows parameters, WdS, p-value, effect size estimate, and
+selected goodness-of-fit components, in that order. The tested group label is
+limited to 30 characters for display; full labels are retained in the result.
+Variable names and conventional mathematical notation preserve their case.
 
-Goodness-of-fit is reported as a distance-based pseudo-\eqn{R^2}. With
-\code{goodness = "auto"}, unadjusted tests report \code{group.only}, the
-variation explained by the tested group. Adjusted tests report
-\code{semi.partial}, the additional fraction of total distance variation
-explained by the tested group after the adjustment variables. The
-\code{goodness.components} table stores components computed directly or
-derived from the residual distance matrices used for the requested
-calculation. For adjusted \code{"auto"} tests, this includes
-\code{adjustment.only}, \code{full}, \code{semi.partial}, and \code{partial}, but
-not \code{group.only}, which requires an additional residual distance matrix.
-For group.only, adjustment.only, and full, values near zero indicate little
-distance-variation reduction; negative values mean the reconstructed residual
-distances have more variation than the original distances. Derived components
-have the denominators and interpretation described below.
-
-Distance diagnostics are stored separately from goodness-of-fit. When
-\code{distance.diagnostics = TRUE}, \code{WdS.test()} collects the diagnostic
-summaries attached by \code{\link{a.dist}()} for each residual distance
-matrix it constructs, using components such as \code{"adjustment.only"},
-\code{"group.only"}, and \code{"full"}. These diagnostics record the
-tolerance used, how many eigenvalues were treated as zero by \code{tol}, and
-how many negative eigenvalues were removed during reconstruction. Use
-\code{keep.eigenvalues = TRUE} to store the raw eigenvalue vectors for deeper
-diagnosis; the default keeps only the compact summary.
-
-The diagnostic rows correspond to residual distance matrices actually
-constructed by the call. For example, an adjusted test with \code{goodness =
-"auto"} stores rows for \code{"adjustment.only"} and \code{"full"};
-\code{"group.only"} is added only when requested, such as with \code{goodness
-= "all"}. An unadjusted test with the default \code{goodness = "auto"} stores
-a \code{"group.only"} row. If \code{goodness = "none"} and no adjustment
-formula is supplied, no residual distance matrix is constructed and
-\code{distance.diagnostics} is \code{NULL}, unless the input \code{dm}
-already carries diagnostics from a previous \code{a.dist()} call. In that
-case, the input diagnostics are preserved with component \code{"input"}.
-
-For original distances \eqn{D} and model-residual distances \eqn{D_{res}},
-the basic goodness-of-fit measure is
-\deqn{R^2_D = 1 - \frac{\sum_{i<j} d_{res,ij}^2}{\sum_{i<j} d_{ij}^2}.}
-For univariate Euclidean distances and the corresponding least-squares model
-with an intercept, this equals ordinary regression R-squared when numerical
-eigenvalue truncation does not alter the residual reconstruction. The identity
-\eqn{\sum_{i<j}(y_i-y_j)^2 = N\sum_i(y_i-\bar y)^2} links the two formulas.
-For multivariate Euclidean data the analogous total sums squared variation
-across response dimensions. Covariate adjustment is not the degrees-of-freedom
-correction used in ordinary adjusted R-squared.
-
-The effect size omega-squared is estimated from the observed WdS statistic:
+The effect size \eqn{R^2}omega-squared is estimated from the observed WdS statistic:
 \deqn{\widehat{\omega}^2 =
 \frac{(k-1)(W_d^*-1)}{(k-1)(W_d^*-1)+N},}
 where \eqn{k} is the number of tested group levels and \eqn{N} the sample size.
@@ -192,72 +145,97 @@ sums-of-squares expression is
 \eqn{[SS_{between}-(k-1)MS_{within}]/[SS_{total}+MS_{within}]}.
 In adjusted tests WdS is calculated on the adjustment-residual distances.
 
-Printed output shows parameters, WdS, p-value, effect size estimate, and
-selected goodness-of-fit components, in that order. The tested group label is
-limited to 30 characters for display; full labels are retained in the result.
-Variable names and conventional mathematical notation preserve their case.
 
-Selected values in \code{goodness.of.fit} are printed in the requested order.
-The \code{goodness.components} table includes all calculated components,
-including intermediate quantities; its \code{displayed} column identifies
-selected values. Both \code{goodness = "all"} and the table use the order
-group.only, adjustment.only, full, semi.partial, partial (when available).
 
-Both returned tables use \code{component} and \code{model} to identify their
-rows. The goodness table additionally contains \code{pseudo.R2} and
-\code{displayed}; explanations are provided here rather than in a text column.
-Models use the full supplied grouping label and adjustment variables. The
-notation \code{(Enterotype | SeqTech) / total} denotes additional variation
-explained by adding Enterotype after SeqTech, divided by original total
-distance variation. Replacing \code{total} with \code{residual} uses variation
-remaining after SeqTech as the denominator. Compound adjustments are enclosed
-in parentheses, e.g. \code{(Enterotype | (Age + SeqTech)) / total}.
-These are descriptive model labels, not necessarily executable R formulas.
-With no adjustment, \code{none} appears after the conditioning bar and both
-denominators refer to original total variation; the component values remain
-mathematically equal. Names and expressions are not truncated in these tables.
+Goodness-of-fit is reported as a distance-based pseudo-\eqn{R^2}.
+For original distances \eqn{D} and model-residual distances \eqn{D_{Res}},
+the basic goodness-of-fit measure is
+\deqn{R^2 = 1 - \frac{\sum_{i<j} d_{Res,ij}^2}{\sum_{i<j} d_{ij}^2}.}
+For univariate Euclidean distances and the corresponding least-squares model
+with an intercept, this equals ordinary regression \eqn{R^2} when numerical
+eigenvalue truncation does not alter the residual reconstruction. For
+multivariate Euclidean data the analogous total sums squared variation across
+response dimensions.
 
-For adjustment variables \eqn{Z} and tested group \eqn{G}, the components are
-interpreted as follows:
+The \code{goodness.components} table stores all components computed directly
+and intermediate quantities derived from the residual distance matrices; For
+adjusted \code{"auto"} tests, this includes \code{adjustment.only}, \code{full},
+\code{semi.partial}, and \code{partial}, but not \code{group.only}, which
+requires an additional residual distance matrix.
+
+The \code{goodness.components$displayed} column identifies selected values
+printed in \code{goodness.of.fit}. With \code{goodness = "auto"}, unadjusted
+tests report \code{group.only}, the variation explained by the tested group
+alone. Adjusted tests report \code{semi.partial}, the additional fraction of
+total distance variation explained by the tested group after the adjustment
+variables.
+
+Distance diagnostics are stored separately from goodness-of-fit components,
+in table \code{distance.diagnostics}. When \code{distance.diagnostics = TRUE},
+\code{WdS.test()} collects the diagnostic summaries attached by \code{\link{a.dist}()}
+for each residual distance matrix it constructs. These diagnostics record the
+tolerance used, how many eigenvalues were treated as zero by \code{tol}, and
+how many negative eigenvalues were removed during reconstruction. Use
+\code{keep.eigenvalues = TRUE} to store the raw eigenvalue vectors for deeper
+diagnosis; the default keeps only the compact summary.
+
+Tables \code{goodness.components} and \code{distance.diagnostics} use
+\code{component} and \code{model} to identify their rows. For adjustment
+variables \eqn{Z} and tested group \eqn{X}, the components and their
+interpretations are as follows:
 \itemize{
-  \item \code{group.only}: \eqn{R^2_G}, variation explained by \eqn{G}
+  \item \code{group.only}: \eqn{R^2_X}, variation explained by \eqn{X}
   alone as a fraction of original total distance variation, ignoring
   adjustment variables.
   \item \code{adjustment.only}: \eqn{R^2_Z}, variation explained by \eqn{Z}
-  alone as a fraction of original total distance variation, ignoring \eqn{G}.
-  \item \code{full}: \eqn{R^2_{Z+G}}, variation explained by \eqn{Z} and
-  \eqn{G} together as a fraction of original total distance variation.
-  \item \code{semi.partial}: \eqn{R^2_{Z+G} - R^2_Z}, additional variation
+  alone as a fraction of original total distance variation, ignoring \eqn{X}.
+  \item \code{full}: \eqn{R^2_{X+Z}}, variation explained by \eqn{X} and
+  \eqn{Z} together as a fraction of original total distance variation. The
+  full-model residual matrix is computed from the original \code{dm} with a
+  combined formula. It is not computed by applying \code{a.dist()} a second
+  time to an already residualized distance matrix.
+  \item \code{semi.partial}: \eqn{R^2_{X+Z} - R^2_Z}, additional variation
   explained by adding the tested group after adjustment, relative to original
-  total distance variation.
-  \item \code{partial}: \eqn{(R^2_{Z+G} - R^2_Z)/(1 - R^2_Z)}, additional
+  total distance variation. A negative semi.partial means full is less than
+  adjustment.only.
+  \item \code{partial}: \eqn{(R^2_{X+Z} - R^2_Z)/(1 - R^2_Z)}, additional
   variation explained by adding the tested group after adjustment, relative
-  to distance variation remaining after adjustment.
+  to distance variation remaining after adjustment. Partial is returned as
+  \code{NA} when adjustment leaves essentially no residual variation.
 }
-Semi-partial uses original total variation as its denominator; partial uses
-variation remaining after adjustment. For example, if adjustment.only is
-0.40 and full is 0.55, semi.partial is 0.15 (15 percentage points of original
-total variation), whereas partial is 0.15 / 0.60 = 0.25 (25 percent of the
-variation remaining after adjustment).
 
-These diagnostics generalize ordinary R-squared to distance data, with
-equivalence in the Euclidean setting described above. They do not establish
-causal effects. The components are not an additive
-partition: group.only plus adjustment.only generally differs from full
-because their explained variation can overlap. For non-Euclidean distances,
-removal of negative eigenvalues during reconstruction can disrupt usual
-nested-model inequalities. A negative semi.partial means full is less than
-adjustment.only. Partial is returned as \code{NA} when adjustment leaves
-essentially no residual variation. Strata restrict permutations for the
-p-value and do not enter these goodness-of-fit calculations.
+The components are not an additive partition: group.only plus adjustment.only
+generally differs from full because their explained variation can overlap.
+For non-Euclidean distances, removal of negative eigenvalues during
+reconstruction can disrupt usual nested-model inequalities. For group.only,
+adjustment.only, and full, values near zero indicate little distance-variation
+reduction; negative values mean the reconstructed residual distances have
+more variation than the original distances. Strata restrict permutations for
+the p-value and do not enter these goodness-of-fit calculations.
 
-The full-model residual matrix is computed from the original \code{dm} with a
-combined formula. It is not computed by applying \code{a.dist()} a second
-time to an already residualized distance matrix. When no adjustment formula
-is supplied, \code{adjustment.only} is unavailable; if requested, \code{full},
-\code{semi.partial}, and \code{partial} reduce to the same value as
-\code{group.only}. Use \code{goodness = "none"} to skip these additional
-goodness-of-fit calculations.
+The rows semi-partial and partial are only included in goodness table as
+those are derivations of other computations, and not residual distance
+matrices to have associated eigendecomposition. These derived components have
+different denominators: semi-partial uses original total variation as its
+denominator; partial uses variation remaining after adjustment. For example,
+if adjustment.only is 0.40 and full is 0.55, semi.partial is 0.15 (15
+percentage points of original total variation), whereas partial is
+0.15 / 0.60 = 0.25 (25 percent of the variation remaining after adjustment).
+
+The diagnostic rows correspond to residual distance matrices actually
+constructed by the call. For example, an unadjusted test with the default
+\code{goodness = "auto"} stores a \code{"group.only"} row. When no adjustment
+formula is supplied, \code{adjustment.only} is unavailable; if requested, \code{full},
+\code{semi.partial}, and \code{partial} reduce to the same value as \code{group.only}.
+If \code{goodness = "none"} and no adjustment formula is supplied, no residual
+distance matrix is constructed and \code{distance.diagnostics} is \code{NULL},
+unless the input \code{dm} already carries diagnostics from a previous
+\code{a.dist()} call. In that case, the input diagnostics are preserved with
+component \code{"input"}.
+In case of an adjusted test with \code{goodness =
+"auto"} stores rows for \code{"adjustment.only"} and \code{"full"};
+\code{"group.only"} is added only when requested, such as with \code{goodness
+= "all"}.
 }
 \examples{
 # We use the optional package phyloseq in these examples for their enterotype dataset;
@@ -278,7 +256,7 @@ if (requireNamespace("phyloseq", quietly = TRUE)) {
       nrep = 9) # Change nrep to 999 or more for a real analysis
   ### Data parameter can be given as a data frame, list, or phyloseq object.
 
-  ### Goodness of Fit:
+  ### Goodness-of-Fit:
   #### By default, the unadjusted test's goodness.of.fit reports the
   #### distance-based pseudo-R-squared for the tested group.
   #### goodness.of.fit contains the selected values;
@@ -370,8 +348,13 @@ if (requireNamespace("phyloseq", quietly = TRUE)) {
 # a.dist() arguments through ... keep their positional behavior; users should
 # pass these newer controls by name.
 }
+\references{
+Hamidi Bashir, Wallace K, Vasu C, Alekseyenko AV. The
+\eqn{\mathnormal{W}_d^*}-test: robust distance-based multivariate analysis
+of variance. \emph{Microbiome}. 2019;7:51.
+}
 \seealso{
-\code{\link{generic.distance.permutation.test}},
+\code{\link{WdS}}, \code{\link{generic.distance.permutation.test}},
   \code{\link{Tw2.test}}, \code{\link{a.dist}},
   \code{\link{dist.goodness.of.fit}}
 }
