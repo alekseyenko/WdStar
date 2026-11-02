@@ -44,7 +44,7 @@ library(WdStar)
 packageVersion("WdStar")
 ```
 
-Alternatively, the (latest released packaged source archives can be downloaded)[https://github.com/bashirhamidi/WdStar/releases]
+Alternatively, the [latest released packaged source archives can be downloaded](https://github.com/bashirhamidi/WdStar/releases)
 and installed using:
 ```R
 install.packages("[directory location]/WdStar_2.5.3.tar.gz", repos = NULL, type = "source")
