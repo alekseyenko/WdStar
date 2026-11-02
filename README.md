@@ -19,8 +19,8 @@
 
 ## Peer-Reviewed Publications on the $W_d^*$-test Family  
 **Preprint: Covariate-adjusted multivariate analysis for omics data**  
-- Hamidi B, Fanning L, Wallace K, & Alekseyenko AV. *Submitted to Briefings in Bioinformatics on June 23, 2026. Not currently accepted or under review.* DOI forthcoming.
-- [Code repository](https://github.com/alekseyenko/WdStar/tree/master/publications/Hamidi%20et%20al.%20Bioinformatics%20(2026))
+- Hamidi B, Fanning L, Wallace K, & Alekseyenko AV. *DOI forthcoming*
+- [Code repository](https://github.com/alekseyenko/WdStar/tree/master/publications/Hamidi%20et%20al.%20FORTHCOMING%20(2026))
 
 
 **$W_d^*$-test: robust distance-based multivariate analysis of variance**  
