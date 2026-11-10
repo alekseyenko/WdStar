@@ -1,6 +1,6 @@
 
 
-# $W_d^*$: distance-based multivariate analysis of variance for multivariate data
+# $W_d^*$: Distance-Based Multivariate Analysis of Variance for Multivariate Data
 
 ## Introduction 
 
@@ -22,7 +22,7 @@ ANOVA designed to address challenges of existing methods including PERMANOVA.
 ## Peer-Reviewed Publications on the $W_d^*$-test Family  
 **Preprint: Covariate-adjusted multivariate analysis for omics data**  
 - Hamidi B, Fanning L, Wallace K, & Alekseyenko AV. *DOI forthcoming*
-- [Code repository](https://github.com/alekseyenko/WdStar/tree/master/publications/Hamidi%20et%20al.%20FORTHCOMING%20(2026))
+- [Code repository](https://github.com/alekseyenko/WdStar/tree/master/publications/))
 
 
 **$W_d^*$-test: robust distance-based multivariate analysis of variance**  
@@ -47,7 +47,7 @@ packageVersion("WdStar")
 Alternatively, the [latest released packaged source archives can be downloaded](https://github.com/bashirhamidi/WdStar/releases)
 and installed using:
 ```R
-install.packages("[downloads directory]/WdStar_2.5.3.tar.gz", repos = NULL, type = "source")
+install.packages("[downloads directory]/WdStar_2.5.4.tar.gz", repos = NULL, type = "source")
 ```
 
 ## Quick Start  

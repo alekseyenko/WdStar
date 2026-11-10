@@ -1,18 +1,12 @@
 Package: WdStar
 Type: Package
-Title: Distance-based Multivariate Welch ANOVA
-Version: 2.5.3
-Author: Bashir Hamidi, Kristin Wallace, Chenthamarakshan Vasu, Ivan Korostenskij, Alexander V Alekseyenko 
-Description: An R package designed to improve the statistical robustness of multivariate data analyses.
-  This method addresses potential confounding of location and dispersion effects in multivariate
-  analyses by explicitly accounting for the differences in multivariate dispersion in the data tested.
-  The methods have general applicability in microbiome and other ‘omics data analyses.
-License: GPL (>=3)
-URL: https://github.com/alekseyenko/WdStar, https://doi.org/10.1186/s40168-019-0659-9 
-BugReports: https://github.com/alekseyenko/WdStar/issues  
-Maintainer: Bashir Mark Hamidi <hamidib@musc.edu>
-Depends: 
-    R (>= 3.6.0)
+Title: Distance-Based Multivariate Welch ANOVA
+Version: 2.5.4
+Description: The WdStar package is designed to improve the statistical robustness of multivariate data analyses by implementing distance-based multivariate Welch analysis of variance for comparing groups with unequal dispersion, as described by Hamidi et al. (2019) <doi:10.1186/s40168-019-0659-9>. Also provides the two-group distance-based Welch t-test of Alekseyenko (2016) <doi:10.1093/bioinformatics/btw524>. The methods address potential confounding of location and dispersion effects in multivariate analyses, and support stratified permutation tests and covariate adjustment of a principal-coordinate representation to remove confounding or technical variables. The methods have general applicability in microbiome and other ‘omics data analyses.
+License: GPL (>=3) 
+URL: https://github.com/alekseyenko/WdStar
+BugReports: https://github.com/alekseyenko/WdStar/issues
+Depends: R (>= 3.6.0)
 Imports: 
     utils,
     stats
@@ -20,6 +14,27 @@ Suggests:
     knitr,
     phyloseq,
     testthat (>= 3.0.0)
+Authors@R: c(
+    person(given = c("Bashir", "Mark"),
+           family = "Hamidi",
+           role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-4559-299X"),
+           email = "hamidib@musc.edu"),
+    person(given = "Kristin",
+           family = "Wallace",
+           role = "aut",
+           comment = c(ORCID = "0000-0002-4297-9064")),
+    person(given = "Chenthamarakshan",
+           family = "Vasu",
+           role = "aut"),
+    person(given = "Ivan",
+           family = "Korostenskij",
+           role = "aut"),
+    person(given = c("Alexander", "V"),
+           family = "Alekseyenko",
+           role = "aut",
+           comment = c(ORCID = "0000-0002-5748-2085"))
+           )
 Encoding: UTF-8
 Config/testthat/edition: 3
 LazyData: true
