@@ -2,7 +2,7 @@
 % Please edit documentation in R/test_utils.R
 \name{generic.distance.permutation.test}
 \alias{generic.distance.permutation.test}
-\title{Conducts a generic distance-based permutation test for k-group differences}
+\title{Conduct a Generic Distance-Based Permutation Test}
 \usage{
 generic.distance.permutation.test(
   test.statistic,
@@ -13,15 +13,19 @@ generic.distance.permutation.test(
 )
 }
 \arguments{
-\item{test.statistic}{A function to calculate the test statistic.}
+\item{test.statistic}{A function that takes \code{dm} and \code{f} and
+returns the observed test statistic.}
 
-\item{dm}{A distance metric (any arbitrary distance or dissimilarity metric).}
+\item{dm}{A distance matrix (any arbitrary distance or dissimilarity metric).}
 
 \item{f}{A factor variable representing the groups.}
 
-\item{nrep}{The number of permutations to conduct. Default is 999.}
+\item{nrep}{A single non-negative integer giving the number of permutations
+to conduct. Default is 999.}
 
-\item{strata}{A factor variable representing the strata. Default is NULL.}
+\item{strata}{A factor variable representing permutation strata. If supplied,
+permutations are restricted within strata. Supply one non-missing value
+per observation. Singleton strata remain fixed. Default is \code{NULL}.}
 }
 \value{
 A list containing:
@@ -33,15 +37,25 @@ A list containing:
 }
 \description{
 This function performs a distance-based permutation test using an arbitrary
-test statistic. It is built on the principle of Welch's ANOVA and extends it
-to handle multivariate distance data. It is particularly useful for analyzing
-microbiome data.
+test statistic. It is useful when a statistic such as \code{\link{WdS}} or
+\code{\link{Tw2}} has been defined separately and permutation-based
+significance testing is needed for multivariate distance data.
 }
 \examples{
-# TODO: Add examples
+if (requireNamespace("phyloseq", quietly = TRUE)) {
+  data("enterotype", package = "phyloseq")
+  ent <- phyloseq::subset_samples(enterotype, !is.na(Enterotype))
+  dm <- phyloseq::distance(ent, method = "bray")
+  meta <- data.frame(phyloseq::sample_data(ent))
+  f <- factor(meta$Enterotype)
+
+  generic.distance.permutation.test(WdS, dm = dm, f = f, nrep = 9)
+}
 }
 \references{
-Hamidi, Bashir, et al. "$ W_ {d}^{*} $-test: robust distance-based multivariate analysis of variance." Microbiome 7.1 (2019):1-9.
+Hamidi B, Wallace K, Vasu C, Alekseyenko AV. The
+\eqn{\mathnormal{W}_d^*}-test: robust distance-based multivariate analysis
+of variance. \emph{Microbiome}. 2019;7:51.
 }
 \seealso{
 \code{\link{Tw2.test}}, \code{\link{WdS.test}}

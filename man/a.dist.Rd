@@ -2,34 +2,62 @@
 % Please edit documentation in R/dist_utils.R
 \name{a.dist}
 \alias{a.dist}
-\title{Covariate Adjusted Principal Coordinates Analysis}
+\title{Compute a Covariate-Adjusted Distance Matrix}
 \usage{
-a.dist(dm, formula, formula_data = parent.frame(), tol = 10^-8)
+a.dist(
+  dm,
+  adjustment,
+  data = parent.frame(),
+  tol = 10^-8,
+  distance.diagnostics = TRUE,
+  keep.eigenvalues = FALSE,
+  ...
+)
 }
 \arguments{
 \item{dm}{A distance matrix (any arbitrary distance or dissimilarity metric).}
 
-\item{formula}{Only the right hand side of a typical formula such as Y~ A is
-necessary. The formula has similar requirements as in
-\code{vegan::adonis()} function.}
+\item{adjustment}{A required right-hand-side formula specifying the
+covariates to remove, such as \code{~ SeqTech} or \code{~ Age + SeqTech}.}
 
-\item{formula_data}{A dataset which contains the variables specified in
-formula. It may be an environment, data frame, list, or object coercible to
-a data frame, such as \code{phyloseq::sample_data()}. Row names should match
-the row names in distance matrix dm. This dataset should include both the
-confounding covariate and the primary covariate. If not provided, the
-parent frame will be used.}
+\item{data}{A dataset which contains the variables specified in \code{adjustment}.
+It may be an environment, data frame, list, or object coercible to a data
+frame, such as \code{phyloseq::sample_data()}. Row names should match the
+row names in distance matrix \code{dm}, with samples in the same order.
+If omitted or \code{NULL}, the calling environment is used. Formula
+variables are looked up in \code{data}, then in the formula environment.
+A whole \code{phyloseq} object is also accepted: sample metadata is
+extracted and matched to unique, nonempty \code{dm} sample labels. Extra
+metadata samples are excluded; missing samples cause an error.
+Adjustment variables must have one value per sample and no missing values.}
 
 \item{tol}{Tolerance for eigenvalues. This is the cutoff for the eigenvalues
 to be considered zero. Default is 10^-8.}
+
+\item{distance.diagnostics}{Logical indicating whether to attach a compact
+diagnostic summary of the eigendecomposition used to reconstruct the
+residual distance matrix. Default is \code{TRUE}.}
+
+\item{keep.eigenvalues}{Logical indicating whether to store the raw
+eigenvalues in the diagnostic summary. Default is \code{FALSE} to keep
+repeated simulations and large analyses memory-light.}
+
+\item{...}{Deprecated named aliases: \code{formula} for \code{adjustment}
+and \code{formula_data} for \code{data}. These warn when used. Supplying
+both an alias and its replacement is an error. Other arguments, including
+unnamed arguments in \code{...}, are rejected. The first six positional
+arguments retain their meaning; the fourth argument is still \code{tol}.}
 }
 \value{
-Returns a distance matrix of class \code{dist} representing the
-  Euclidean distances
+A covariate-adjusted distance matrix of class \code{dist}. When
+  \code{distance.diagnostics = TRUE}, the returned object has a
+  \code{"distance.diagnostics"} attribute containing one row of eigenvalue
+  diagnostics.
 }
 \description{
-This function takes in a formula and distance matrix, adjusts for covariates,
-performs PCoA, and returns the resulting corrected matrix.
+This function takes a formula and distance matrix, projects out covariate
+effects through principal-coordinate residualization, and returns the
+resulting adjusted distance matrix.
 }
 \details{
 The \code{a.dist()} function only requires a right-hand side of the
@@ -39,28 +67,87 @@ The \code{a.dist()} function only requires a right-hand side of the
   operations and eigen-decomposition, it calculates the Euclidean distances.
   It preserves the labels of the input dm.
 
+  During reconstruction, eigenvalues with \code{abs(lambda) < tol} are
+  treated as zero, and remaining negative eigenvalues are set to zero before
+  distances are recomputed. The \code{"distance.diagnostics"} attribute records
+  how many eigenvalues were positive, negative, treated as zero by
+  \code{tol}, and removed as negative after tolerance handling. These
+  diagnostics describe construction of the residual distance matrix and are
+  separate from goodness-of-fit statistics such as pseudo-\eqn{R^2}. If
+  \code{keep.eigenvalues = TRUE}, the diagnostics also include the raw
+  eigenvalues before tolerance and negative-value zeroing.
+
+  The diagnostic fields include:
+  \itemize{
+    \item \code{component}: \code{adjustment.only} for a direct
+    \code{a.dist()} call; \code{WdS.test()} assigns \code{group.only},
+    \code{adjustment.only}, or \code{full} according to the model, and
+    \code{input} for inherited diagnostics on the supplied distance matrix.
+    \item \code{model} and \code{tol}: full model description and tolerance.
+    The model column is retained even when goodness-of-fit is disabled.
+    \item \code{n.eigenvalues}: number of eigenvalues from the decomposition.
+    \item \code{n.positive.raw}, \code{n.negative.raw}, and
+    \code{n.zero.raw}: signs before tolerance handling.
+    \item \code{n.zeroed.by.tol}: eigenvalues with
+    \code{abs(lambda) < tol}, including exact zeros.
+    \item \code{n.positive.zeroed.by.tol} and
+    \code{n.negative.zeroed.by.tol}: positive and negative raw eigenvalues
+    counted in \code{n.zeroed.by.tol}.
+    \item \code{n.negative.removed}: negative eigenvalues remaining after
+    tolerance handling, which are set to zero before reconstruction.
+    \item \code{n.positive.retained} and \code{n.zero.final}: counts after
+    tolerance and negative-value zeroing.
+    \item \code{min.eigenvalue}, \code{max.eigenvalue},
+    \code{sum.positive.raw}, \code{sum.negative.raw},
+    \code{sum.negative.magnitude.raw}, and \code{prop.negative.raw}: compact
+    summaries of the raw eigenspectrum. Here raw means before either
+    zeroing step; final means after tolerance handling and removal of remaining
+    negative eigenvalues. \code{prop.negative.raw} is the negative absolute
+    magnitude divided by total absolute eigenvalue magnitude, not the
+    fraction of eigenvalues that are negative. The counts satisfy
+    \code{n.negative.raw = n.negative.zeroed.by.tol + n.negative.removed}.
+    Individual raw eigenvalues are stored only when requested; their zeroing
+    reason can be reconstructed from their sign and the recorded tolerance.
+    \item \code{eigenvalues}: optional raw eigenvalue vector, present only
+    when \code{keep.eigenvalues = TRUE}.
+  }
+
   This function refactors and generalizes functionality from
   \code{aPCoA::aPCoA()} function in the aPCoA package.
 }
 \examples{
-data(mtcars)
+if (requireNamespace("phyloseq", quietly = TRUE)) {
+  data("enterotype", package = "phyloseq")
 
-# The outcome could be a single variable or multiple variables (such as
-# multidimensional omics data).
+  ## Use the full enterotype data after removing samples without Enterotype.
+  ent <- phyloseq::subset_samples(enterotype, !is.na(Enterotype))
+  dm <- phyloseq::distance(ent, method = "bray")
 
-## This is an example with a single variable:
-dm <- dist(mtcars$mpg, method="euclidean")
+  ## Adjust the distance matrix by sequencing technology, a categorical
+  ## covariate stored in phyloseq::sample_data(ent).
+  a.dm <- a.dist(
+    dm = dm,
+    adjustment = ~ SeqTech,
+    data = phyloseq::sample_data(ent)
+  )
+  a.dm
+  attr(a.dm, "distance.diagnostics")
 
-## This is an example with multiple variables:
-dm <- dist(mtcars[1:3], method="euclidean")
-
-# Right-hand side adjustment formula. Note that you may use any data type
-# including factor, character, integer, and numeric.
-formula <- ~ as.factor(gear) + as.integer(hp) + wt
-
-# Create the adjusted distance matrix 'a.dm'
-a.dm <- a.dist(dm=dm, formula=formula, formula_data=mtcars)
-a.dm
+  ## Continuous covariates can also be used. Age has many missing values in
+  ## enterotype, so this example builds a matching Age-complete distance
+  ## matrix before using Age in the adjustment formula.
+  ent_age <- phyloseq::subset_samples(
+    enterotype,
+    !is.na(Enterotype) & !is.na(Age)
+  )
+  dm_age <- phyloseq::distance(ent_age, method = "bray")
+  a.dm.age <- a.dist(
+    dm = dm_age,
+    adjustment = ~ Age,
+    data = phyloseq::sample_data(ent_age)
+  )
+  attr(a.dm.age, "distance.diagnostics")
+}
 
 }
 \references{
@@ -72,4 +159,7 @@ Shi Y, Zhang L, Do KA, Peterson CB, Jenq RR. aPCoA: covariate
   https://CRAN.R-project.org/package=aPCoA.
 
   Please cite both the package and the paper when using this function.
+}
+\seealso{
+\code{\link{WdS.test}}, \code{\link{dist.goodness.of.fit}}
 }

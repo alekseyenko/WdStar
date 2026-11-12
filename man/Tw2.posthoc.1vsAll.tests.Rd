@@ -2,7 +2,7 @@
 % Please edit documentation in R/posthoc_utils.R
 \name{Tw2.posthoc.1vsAll.tests}
 \alias{Tw2.posthoc.1vsAll.tests}
-\title{Perform 1-vs-All posthoc tests for Tw2 statistic}
+\title{Perform 1-vs-All Post Hoc Tests for the Tw2 Statistic}
 \usage{
 Tw2.posthoc.1vsAll.tests(dm, f, nrep = 999)
 }
@@ -16,22 +16,24 @@ observation.}
 \item{nrep}{Number of permutations to perform (default: 999).}
 }
 \value{
-A matrix containing 1-vs-All posthoc test results, with columns for
+A matrix containing 1-vs-all post hoc test results, with columns for
   sample sizes, p-values, Tw2 statistics, and number of permutations.
 }
 \description{
-This function performs 1-vs-All posthoc tests for the Tw2 statistic using a
-permutation approach. This is useful for comparing each group against all
-other groups collectively. This method is particularly useful in settings
-where multiple testing can lead to power loss, such as microbiome data
-analyses.
+This function performs 1-vs-all post hoc tests for the \eqn{T_w^2} statistic
+using permutation tests. This is useful for comparing each group against all
+other groups collectively, especially when exhaustive pairwise testing may
+reduce power.
 }
 \examples{
-\dontrun{
-# Example usage
-data <- ... # TODO add data here
-result <- Tw2.posthoc.1vsAll.tests(data$dm, data$f)
-print(result)
+if (requireNamespace("phyloseq", quietly = TRUE)) {
+  data("enterotype", package = "phyloseq")
+  ent <- phyloseq::subset_samples(enterotype, !is.na(Enterotype))
+  dm <- phyloseq::distance(ent, method = "bray")
+  meta <- data.frame(phyloseq::sample_data(ent))
+  f <- factor(meta$Enterotype)
+
+  Tw2.posthoc.1vsAll.tests(dm, f, nrep = 9)
 }
 
 }

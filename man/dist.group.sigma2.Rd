@@ -12,16 +12,20 @@ dist.group.sigma2(dm, f)
 \item{f}{Factor variable for group definition.}
 }
 \value{
-A diagonal matrix of group-wise sigma squared values.
+A named numeric vector of group-wise sigma squared values.
 }
 \description{
 This function calculates the sigma squared statistic for each group defined
 by a factor variable in a given distance matrix.
 }
 \examples{
-\dontrun{
-dm <- as.dist(matrix(runif(100), nrow = 10))
-f <- factor(c(rep("A", 5), rep("B", 5)))
-dist.group.sigma2(dm, f)
+if (requireNamespace("phyloseq", quietly = TRUE)) {
+  data("enterotype", package = "phyloseq")
+  ent <- phyloseq::subset_samples(enterotype, !is.na(Enterotype))
+  dm <- phyloseq::distance(ent, method = "bray")
+  meta <- data.frame(phyloseq::sample_data(ent))
+  f <- factor(meta$Enterotype)
+
+  dist.group.sigma2(dm, f)
 }
 }

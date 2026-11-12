@@ -17,7 +17,12 @@ This function computes the sigma squared statistic for a given distance matrix.
 }
 \examples{
 
-dm <- as.dist(matrix(runif(100), nrow = 10))
-dist.sigma2(dm)
+if (requireNamespace("phyloseq", quietly = TRUE)) {
+  data("enterotype", package = "phyloseq")
+  ent <- phyloseq::subset_samples(enterotype, !is.na(Enterotype))
+  dm <- phyloseq::distance(ent, method = "bray")
+
+  dist.sigma2(dm)
+}
 
 }

@@ -20,8 +20,14 @@ weighted by a factor variable.
 }
 \examples{
 
-dm <- matrix(runif(100), nrow = 10)
-f <- factor(c(rep("A", 5), rep("B", 5)))
-dist.ss2(dm, f)
+if (requireNamespace("phyloseq", quietly = TRUE)) {
+  data("enterotype", package = "phyloseq")
+  ent <- phyloseq::subset_samples(enterotype, !is.na(Enterotype))
+  dm <- phyloseq::distance(ent, method = "bray")
+  meta <- data.frame(phyloseq::sample_data(ent))
+  f <- factor(meta$Enterotype)
+
+  dist.ss2(as.matrix(dm)^2, f)
+}
 
 }

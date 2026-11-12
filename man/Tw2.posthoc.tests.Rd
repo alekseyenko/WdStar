@@ -2,7 +2,7 @@
 % Please edit documentation in R/posthoc_utils.R
 \name{Tw2.posthoc.tests}
 \alias{Tw2.posthoc.tests}
-\title{Perform posthoc tests for Tw2 statistic}
+\title{Perform Pairwise Post Hoc Tests for the Tw2 Statistic}
 \usage{
 Tw2.posthoc.tests(dm, f, nrep = 999)
 }
@@ -16,22 +16,24 @@ observation.}
 \item{nrep}{Number of permutations to perform (default: 999).}
 }
 \value{
-A matrix containing posthoc test results, with columns for level
+A matrix containing post hoc test results, with columns for level
   combinations, sample sizes, p-values, Tw2 statistics, and number of
   permutations.
 }
 \description{
-This function performs posthoc tests for the Tw2 statistic using a
-permutation approach. The Tw2 statistic is an extension of the Welch ANOVA
-test for multivariate distances. It is especially useful for analyzing
-microbiome data.
+This function performs pairwise post hoc tests for the \eqn{T_w^2} statistic
+using permutation tests. The \eqn{T_w^2} statistic is a two-group
+distance-based extension of Welch's test for multivariate data.
 }
 \examples{
-\dontrun{
-# Example usage
-data <- ... # TODO add data here
-result <- Tw2.posthoc.tests(data$dm, data$f)
-print(result)
+if (requireNamespace("phyloseq", quietly = TRUE)) {
+  data("enterotype", package = "phyloseq")
+  ent <- phyloseq::subset_samples(enterotype, !is.na(Enterotype))
+  dm <- phyloseq::distance(ent, method = "bray")
+  meta <- data.frame(phyloseq::sample_data(ent))
+  f <- factor(meta$Enterotype)
+
+  Tw2.posthoc.tests(dm, f, nrep = 9)
 }
 
 }

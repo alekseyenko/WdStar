@@ -1,9 +1,8 @@
-#' Perform posthoc tests for Tw2 statistic
+#' Perform Pairwise Post Hoc Tests for the Tw2 Statistic
 #'
-#' This function performs posthoc tests for the Tw2 statistic using a
-#' permutation approach. The Tw2 statistic is an extension of the Welch ANOVA
-#' test for multivariate distances. It is especially useful for analyzing
-#' microbiome data.
+#' This function performs pairwise post hoc tests for the \eqn{T_w^2} statistic
+#' using permutation tests. The \eqn{T_w^2} statistic is a two-group
+#' distance-based extension of Welch's test for multivariate data.
 #'
 #' @param dm A distance matrix representing the pairwise distances between
 #'   observations.
@@ -11,16 +10,19 @@
 #'   observation.
 #' @param nrep Number of permutations to perform (default: 999).
 #'
-#' @return A matrix containing posthoc test results, with columns for level
+#' @return A matrix containing post hoc test results, with columns for level
 #'   combinations, sample sizes, p-values, Tw2 statistics, and number of
 #'   permutations.
 #'
 #' @examples
-#' \dontrun{
-#' # Example usage
-#' data <- ... # TODO add data here
-#' result <- Tw2.posthoc.tests(data$dm, data$f)
-#' print(result)
+#' if (requireNamespace("phyloseq", quietly = TRUE)) {
+#'   data("enterotype", package = "phyloseq")
+#'   ent <- phyloseq::subset_samples(enterotype, !is.na(Enterotype))
+#'   dm <- phyloseq::distance(ent, method = "bray")
+#'   meta <- data.frame(phyloseq::sample_data(ent))
+#'   f <- factor(meta$Enterotype)
+#'
+#'   Tw2.posthoc.tests(dm, f, nrep = 9)
 #' }
 #'
 #' @seealso \url{https://github.com/alekseyenko/WdStar}
@@ -43,13 +45,12 @@ Tw2.posthoc.tests <- function(dm, f, nrep = 999) {
   res
 }
 
-#' Perform 1-vs-All posthoc tests for Tw2 statistic
+#' Perform 1-vs-All Post Hoc Tests for the Tw2 Statistic
 #'
-#' This function performs 1-vs-All posthoc tests for the Tw2 statistic using a
-#' permutation approach. This is useful for comparing each group against all
-#' other groups collectively. This method is particularly useful in settings
-#' where multiple testing can lead to power loss, such as microbiome data
-#' analyses.
+#' This function performs 1-vs-all post hoc tests for the \eqn{T_w^2} statistic
+#' using permutation tests. This is useful for comparing each group against all
+#' other groups collectively, especially when exhaustive pairwise testing may
+#' reduce power.
 #'
 #' @param dm A distance matrix representing the pairwise distances between
 #'   observations.
@@ -57,15 +58,18 @@ Tw2.posthoc.tests <- function(dm, f, nrep = 999) {
 #'   observation.
 #' @param nrep Number of permutations to perform (default: 999).
 #'
-#' @return A matrix containing 1-vs-All posthoc test results, with columns for
+#' @return A matrix containing 1-vs-all post hoc test results, with columns for
 #'   sample sizes, p-values, Tw2 statistics, and number of permutations.
 #'
 #' @examples
-#' \dontrun{
-#' # Example usage
-#' data <- ... # TODO add data here
-#' result <- Tw2.posthoc.1vsAll.tests(data$dm, data$f)
-#' print(result)
+#' if (requireNamespace("phyloseq", quietly = TRUE)) {
+#'   data("enterotype", package = "phyloseq")
+#'   ent <- phyloseq::subset_samples(enterotype, !is.na(Enterotype))
+#'   dm <- phyloseq::distance(ent, method = "bray")
+#'   meta <- data.frame(phyloseq::sample_data(ent))
+#'   f <- factor(meta$Enterotype)
+#'
+#'   Tw2.posthoc.1vsAll.tests(dm, f, nrep = 9)
 #' }
 #'
 #' @seealso \url{https://github.com/alekseyenko/WdStar}

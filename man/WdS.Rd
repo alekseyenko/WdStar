@@ -4,42 +4,51 @@
 \alias{WdS}
 \title{Calculate the Wd* Statistic for Heteroscedastic Test}
 \usage{
-WdS(dm, f)
+WdS(dm, group, ...)
 }
 \arguments{
 \item{dm}{A distance matrix, representing dissimilarity between observations.}
 
-\item{f}{A factor variable indicating the group for each observation.}
+\item{group}{A grouping factor with at least two levels, in the same
+observation order as \code{dm}. Supply the factor directly; metadata-column
+lookup is available in \code{\link{WdS.test}}, not this function.}
+
+\item{...}{Deprecated named argument \code{f}, an alias for \code{group}.
+It warns when used and cannot be combined with \code{group}. No other
+extra arguments are accepted.}
 }
 \value{
 The calculated Wd* statistic.
 }
 \description{
-This function calculates the Wd* statistic to compare means of k populations
-with potentially unequal variances and observations. It is suitable for
-microbiome data and utilizes permutation testing for significance estimation.
+This function calculates the \eqn{\mathnormal{W}_d^*} statistic to compare
+k groups with potentially unequal multivariate dispersions and sample sizes.
+It is suitable for microbiome and other multivariate distance data.
 }
 \details{
 This function is an extension of Welch's ANOVA statistic suitable for
-multivariate data and specifically for microbiome data. The Wd* statistic is
-computed based on pairwise square differences between group means and
-variances. It explicitly accounts for potentially unbalanced number of
-observations and differences in multivariate spread in the two samples.
+multivariate distance data. The \eqn{\mathnormal{W}_d^*} statistic is
+computed from pairwise squared distances among groups while accounting for
+unequal group sizes and differences in multivariate spread across groups.
+This function returns the observed statistic only; use
+\code{\link{WdS.test}} for permutation-based significance testing.
 }
 \examples{
-\dontrun{
-# Generate a synthetic distance matrix and a factor variable
-dm <- matrix(runif(100), nrow = 10)
-f <- factor(rep(1:2, each = 5))
-# Calculate the Wd* statistic
-WdS_stat <- WdS(dm, f)
+if (requireNamespace("phyloseq", quietly = TRUE)) {
+  data("enterotype", package = "phyloseq")
+  ent <- phyloseq::subset_samples(enterotype, !is.na(Enterotype))
+  dm <- phyloseq::distance(ent, method = "bray")
+  group <- factor(phyloseq::sample_data(ent)$Enterotype)
+  print(WdS(dm, group = group))
 }
 
 }
 \references{
-Hamidi, Bashir, et al. "$ W_ {d}^{*} $-test: robust distance-based
-multivariate analysis of variance." Microbiome 7.1 (2019): 1-9.
+Hamidi Bashir, Wallace K, Vasu C, Alekseyenko AV. The
+\eqn{\mathnormal{W}_d^*}-test: robust distance-based multivariate analysis
+of variance. \emph{Microbiome}. 2019;7:51.
 }
 \seealso{
-\url{https://github.com/alekseyenko/WdStar}
+\code{\link{WdS.test}}, \code{\link{Tw2}},
+  \url{https://github.com/alekseyenko/WdStar}
 }

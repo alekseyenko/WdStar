@@ -19,8 +19,18 @@ This function calculates the Cohen's d statistic for a distance matrix,
 assuming two levels in the factor variable.
 }
 \examples{
-dm <- as.dist(matrix(runif(100), nrow = 10))
-f <- factor(c(rep("A", 5), rep("B", 5)))
-dist.cohen.d(dm, f)
+if (requireNamespace("phyloseq", quietly = TRUE)) {
+  data("enterotype", package = "phyloseq")
+  ent <- phyloseq::subset_samples(enterotype, !is.na(Enterotype))
+  dm <- phyloseq::distance(ent, method = "bray")
+  meta <- data.frame(phyloseq::sample_data(ent))
+  f <- factor(meta$Enterotype)
+
+  keep <- f \%in\% c("1", "2")
+  dm_12 <- as.dist(as.matrix(dm)[keep, keep])
+  f_12 <- droplevels(f[keep])
+
+  dist.cohen.d(dm_12, f_12)
+}
 
 }

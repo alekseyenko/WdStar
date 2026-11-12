@@ -2,128 +2,349 @@
 % Please edit documentation in R/test_utils.R
 \name{WdS.test}
 \alias{WdS.test}
-\title{Conducts distance-based multivariate Welch ANOVA}
+\title{Conduct Distance-Based Multivariate Welch ANOVA}
 \usage{
 WdS.test(
   dm,
-  f,
+  group,
   nrep = 999,
   strata = NULL,
-  formula = NULL,
-  formula_data = parent.frame(),
-  ...
+  adjustment = NULL,
+  data = NULL,
+  ...,
+  goodness = "auto",
+  distance.diagnostics = TRUE,
+  keep.eigenvalues = FALSE
 )
 }
 \arguments{
 \item{dm}{A distance matrix (any arbitrary distance or dissimilarity metric).}
 
-\item{f}{A factor variable representing the groups.}
+\item{group}{The tested grouping variable. This may be a vector/factor, an
+unquoted column name in \code{data}, or a length-one character column name
+in \code{data}.}
 
 \item{nrep}{(optional) The number of permutations to conduct. Default is 999.}
 
 \item{strata}{(optional) A factor variable representing strata. If specified,
 the test will perform p-value computations using stratified permutation.
-Default is NULL.}
+This may be a vector/factor, an unquoted column name in \code{data}, or a
+length-one character column name in \code{data}. Default is \code{NULL}.}
 
-\item{formula}{(optional) A right-hand side ONLY formula to be used with
-'formula_data' for confounder adjustment/elimination from `dm`. Results in
-adjusted WdS statistic, omega-squared (\eqn{\omega^2}{\omega^2}) effect
-size estimate, goodness-of-fit coefficient of determination (\eqn{R^2}),
-and p-value. Note that you may use any data type including factor,
-character, integer, and numeric. Default is NULL}
+\item{adjustment}{(optional) A right-hand-side formula specifying covariates
+to remove from \code{dm} before testing \code{group}. Formula is passed to
+\code{\link{a.dist}} to project residual matrices before the test is
+performed. Users may also make adjustments outside the function with
+\code{\link{a.dist}} and then pass the adjusted distance matrix to
+\code{WdS.test()}. Note that you may use any data type supported by
+\code{model.matrix()}, including factor, character, integer, and numeric
+variables. Default is \code{NULL}.}
 
-\item{formula_data}{(optional) An environment, data frame, list, or object
-coercible to a data frame, such as \code{phyloseq::sample_data()}, to be
-used in conjunction with 'formula' for confounder adjustment. Default is
-parent.frame()}
+\item{data}{(optional) An environment, data frame, list, or object coercible
+to a data frame, such as \code{phyloseq::sample_data()}. Variables in
+\code{group}, \code{strata}, and \code{adjustment} are first looked up
+here. If omitted or \code{NULL}, the calling environment is used. Metadata
+rows and external vectors must follow the sample order in \code{dm}; this
+function does not reorder these inputs by row names. Adjustment variables
+absent from \code{data} are looked up in the formula environment. A whole
+\code{phyloseq} object is also accepted: sample metadata is extracted and
+matched to unique, nonempty \code{dm} sample labels. Extra metadata samples
+are excluded; missing samples cause an error.}
 
 \item{...}{Additional arguments passed to \code{\link{a.dist}()}, such as
-\code{tol} (tolerance for eigenvalues; default \code{1e-8}). Only used
-when \code{formula} is provided.}
+\code{tol} (tolerance for eigenvalues; default \code{1e-8}). These
+arguments are used when residual distance matrices are computed for
+adjustment or goodness-of-fit components. Deprecated named arguments
+\code{f}, \code{formula}, and \code{formula_data} are also accepted here
+for backward compatibility. Unexpected arguments are rejected even when
+\code{goodness = "none"}; a single unnamed extra argument is treated as
+\code{tol} for positional compatibility.}
+
+\item{goodness}{Which distance-based pseudo-\eqn{R^2} goodness-of-fit
+component to report. Options are \code{"auto"}, \code{"group.only"},
+\code{"adjustment.only"}, \code{"full"}, \code{"semi.partial"},
+\code{"partial"}, \code{"all"}, and \code{"none"}. The default
+\code{"auto"} reports \code{"group.only"} for unadjusted tests and
+\code{"semi.partial"} for adjusted tests. Multiple explicit components may
+be requested with a character vector, except for \code{"auto"},
+\code{"all"}, and \code{"none"}. Use \code{"none"} to skip goodness-of-fit
+calculations.}
+
+\item{distance.diagnostics}{Logical indicating whether to store compact
+eigendecomposition diagnostics for residual distance matrices constructed
+inside \code{WdS.test()}. Default is \code{TRUE}. \code{goodness} and
+\code{distance.diagnostics} are placed after \code{...} so older calls that
+pass \code{a.dist()} arguments through \code{...} keep their positional
+behavior; users should pass these newer controls by name.}
+
+\item{keep.eigenvalues}{Logical indicating whether to include raw eigenvalue
+vectors in \code{distance.diagnostics}. Default is \code{FALSE} to avoid
+extra memory use in large analyses and simulations.}
 }
 \value{
 A list containing:
 \itemize{
   \item \code{method}: name of the method used.
-  \item \code{data.name}: a string describing the input data.
+  \item \code{data.name}: a string describing the input data with the full group label.
+  \item \code{data.info}: distance method, observation count, full group label,
+  and number of group levels, used to format the data description.
   \item \code{statistic}: observed WdS test statistic.
-  \item \code{estimate}: effect size estimator of variance, omega-squared (\eqn{\omega^2}{\omega^2}).
-  \item \code{goodness.of.fit}: goodness-of-fit coefficient of determination
-  (\eqn{R^2}), computed with \code{\link{dist.goodness.of.fit}} as
-  \eqn{1 - SS_{residual}/SS_{total}} for adjusted tests; \code{NULL} for
-  unadjusted tests.
+  \item \code{estimate}: omega-squared effect size estimate calculated from WdS (see Details).
+  \item \code{goodness.of.fit}: requested/default distance-based
+  pseudo-\eqn{R^2} component.
+  \item \code{goodness.components}: data frame of the goodness-of-fit
+  components computed while evaluating \code{goodness.of.fit}. This may
+  include intermediate values that are not printed by default.
+  \item \code{distance.diagnostics}: data frame of eigendecomposition
+  diagnostics for residual distance matrices constructed by \code{a.dist()},
+  or \code{NULL} when no diagnostics were collected.
   \item \code{p.value}: The p-value of the test.
   \item \code{parameter}: A list of 2-4 containing:
          \itemize{
-         \item \code{strata}: (optional) strata variable used to perform restricted permutations.
-         \item \code{formula}: (optional) formula for residual projection to perform matrix adjustment.
+         \item \code{strata}: (optional) strata variable used for restricted permutations.
+         \item \code{adjustment}: (optional) formula for residual projection to perform distance adjustment.
          \item \code{dfb}: between degrees of freedom.
          \item \code{nrep}: number of permutations performed
          }
 }
 }
 \description{
-This function performs the \eqn{\mathnormal{W}_d^*} test statistic for
+This function performs the multivariate Welch ANOVA \eqn{\mathnormal{W}_d^*} test using
+optional stratified restricted permutations and confounder elimination for
 k-group comparison using a given distance matrix.
 }
 \details{
-This method uses permutation testing to establish the significance by computing
-\eqn{\mathnormal{W}_d^*} statistic on \eqn{\mathnormal{m}} permutations of the original data
-and estimate the significance as the fraction of times the permuted statistic
-is greater than or equal to \eqn{\mathnormal{W}_d}.
+This method uses permutation testing to establish the significance by
+computing \eqn{\mathnormal{W}_d^*} statistic on \eqn{\mathnormal{m}}
+permutations of the original data and estimate the significance as the
+fraction of times the permuted statistic is greater than or equal to
+\eqn{\mathnormal{W}_d^*} (see \code{\link{WdS}} for details).
 
 Our approach can accommodate multi-level factors, stratification (via
 restricted permutations), multiple post-hoc testing scenarios, and covariate
-adjustment/ elimination (via projection of residuals).
+adjustment/ elimination by projection of residuals from the distance matrix
+(see \code{\link{a.dist}} for details).
 
-If optional covariate adjustment parameters (\code{`formula`}, and
-\code{`formula_data`}) are provided as input, they are passed to the \code{WdStar::a.dist()}
-function to project residual matrices and remove the effect of specified
-covariate(s) from distance matrix \code{dm} before performing the test.
-Users may choose to make adjustments within the function or use \code{WdStar::a.dist()}
-outside the function and then pass on the adjusted distance matrix to \code{WdStar::WdS.test()}.
+The preferred interface is \code{group} for the tested grouping variable,
+\code{adjustment} for optional covariates to remove, and \code{data} for
+sample metadata. Deprecated function parameter names \code{f}, \code{formula},
+and \code{formula_data} may still be supplied through \code{...}.
+
+Printed output shows parameters, WdS, p-value, effect size estimate, and
+selected goodness-of-fit components, in that order. The tested group label is
+limited to 30 characters for display; full labels are retained in the result.
+Variable names and conventional mathematical notation preserve their case.
+
+The effect size \eqn{R^2} is estimated from the observed WdS statistic:
+\deqn{\widehat{\omega}^2 =
+\frac{(k-1)(W_d^*-1)}{(k-1)(W_d^*-1)+N},}
+where \eqn{k} is the number of tested group levels and \eqn{N} the sample size.
+This is the ordinary one-way ANOVA omega-squared transformation with WdS
+substituted for the classical F statistic. In ordinary ANOVA the equivalent
+sums-of-squares expression is
+\eqn{[SS_{between}-(k-1)MS_{within}]/[SS_{total}+MS_{within}]}.
+In adjusted tests WdS is calculated on the adjustment-residual distances.
+
+
+
+Goodness-of-fit is reported as a distance-based pseudo-\eqn{R^2}.
+For original distances \eqn{D} and model-residual distances \eqn{D_{Res}},
+the basic goodness-of-fit measure is
+\deqn{R^2 = 1 - \frac{\sum_{i<j} d_{Res,ij}^2}{\sum_{i<j} d_{ij}^2}.}
+For univariate Euclidean distances and the corresponding least-squares model
+with an intercept, this equals ordinary regression \eqn{R^2} when numerical
+eigenvalue truncation does not alter the residual reconstruction. For
+multivariate Euclidean data the analogous total sums squared variation across
+response dimensions.
+
+The \code{goodness.components} table stores all components computed directly
+and intermediate quantities derived from the residual distance matrices; For
+adjusted \code{"auto"} tests, this includes \code{adjustment.only}, \code{full},
+\code{semi.partial}, and \code{partial}, but not \code{group.only}, which
+requires an additional residual distance matrix.
+
+The \code{goodness.components$displayed} column identifies selected values
+printed in \code{goodness.of.fit}. With \code{goodness = "auto"}, unadjusted
+tests report \code{group.only}, the variation explained by the tested group
+alone. Adjusted tests report \code{semi.partial}, the additional fraction of
+total distance variation explained by the tested group after the adjustment
+variables.
+
+Distance diagnostics are stored separately from goodness-of-fit components,
+in table \code{distance.diagnostics}. When \code{distance.diagnostics = TRUE},
+\code{WdS.test()} collects the diagnostic summaries attached by \code{\link{a.dist}()}
+for each residual distance matrix it constructs. These diagnostics record the
+tolerance used, how many eigenvalues were treated as zero by \code{tol}, and
+how many negative eigenvalues were removed during reconstruction. Use
+\code{keep.eigenvalues = TRUE} to store the raw eigenvalue vectors for deeper
+diagnosis; the default keeps only the compact summary.
+
+Tables \code{goodness.components} and \code{distance.diagnostics} use
+\code{component} and \code{model} to identify their rows. For adjustment
+variables \eqn{Z} and tested group \eqn{X}, the components and their
+interpretations are as follows:
+\itemize{
+  \item \code{group.only}: \eqn{R^2_X}, variation explained by \eqn{X}
+  alone as a fraction of original total distance variation, ignoring
+  adjustment variables.
+  \item \code{adjustment.only}: \eqn{R^2_Z}, variation explained by \eqn{Z}
+  alone as a fraction of original total distance variation, ignoring \eqn{X}.
+  \item \code{full}: \eqn{R^2_{X+Z}}, variation explained by \eqn{X} and
+  \eqn{Z} together as a fraction of original total distance variation. The
+  full-model residual matrix is computed from the original \code{dm} with a
+  combined formula. It is not computed by applying \code{a.dist()} a second
+  time to an already residualized distance matrix.
+  \item \code{semi.partial}: \eqn{R^2_{X+Z} - R^2_Z}, additional variation
+  explained by adding the tested group after adjustment, relative to original
+  total distance variation. A negative semi.partial means full is less than
+  adjustment.only.
+  \item \code{partial}: \eqn{(R^2_{X+Z} - R^2_Z)/(1 - R^2_Z)}, additional
+  variation explained by adding the tested group after adjustment, relative
+  to distance variation remaining after adjustment. Partial is returned as
+  \code{NA} when adjustment leaves essentially no residual variation.
+}
+
+The components are not an additive partition: group.only plus adjustment.only
+generally differs from full because their explained variation can overlap.
+For non-Euclidean distances, removal of negative eigenvalues during
+reconstruction can disrupt usual nested-model inequalities. For group.only,
+adjustment.only, and full, values near zero indicate little distance-variation
+reduction; negative values mean the reconstructed residual distances have
+more variation than the original distances. Strata restrict permutations for
+the p-value and do not enter these goodness-of-fit calculations.
+
+The rows semi-partial and partial are only included in goodness table as
+those are derivations of other computations, and not residual distance
+matrices to have associated eigendecomposition. These derived components have
+different denominators: semi-partial uses original total variation as its
+denominator; partial uses variation remaining after adjustment. For example,
+if adjustment.only is 0.40 and full is 0.55, semi.partial is 0.15 (15
+percentage points of original total variation), whereas partial is
+0.15 / 0.60 = 0.25 (25 percent of the variation remaining after adjustment).
+
+The diagnostic rows correspond to residual distance matrices actually
+constructed by the call. For example, an unadjusted test with the default
+\code{goodness = "auto"} stores a \code{"group.only"} row. When no adjustment
+formula is supplied, \code{adjustment.only} is unavailable; if requested, \code{full},
+\code{semi.partial}, and \code{partial} reduce to the same value as \code{group.only}.
+If \code{goodness = "none"} and no adjustment formula is supplied, no residual
+distance matrix is constructed and \code{distance.diagnostics} is \code{NULL},
+unless the input \code{dm} already carries diagnostics from a previous
+\code{a.dist()} call. In that case, the input diagnostics are preserved with
+component \code{"input"}.
+In case of an adjusted test with \code{goodness =
+"auto"} stores rows for \code{"adjustment.only"} and \code{"full"};
+\code{"group.only"} is added only when requested, such as with \code{goodness
+= "all"}.
 }
 \examples{
-# The following is a simple example using the mtcars dataset to assess the
-# effect of gears on mpg, cyl, and disp (first three variables of the dataset):
-data(mtcars)
+# We use the optional package phyloseq in these examples for their enterotype dataset;
+# Examples run when phyloseq is already installed.
+if (requireNamespace("phyloseq", quietly = TRUE)) {
+  data("enterotype", package = "phyloseq") # load phyloseq's enterotype data
+  ## Use the full enterotype data after removing samples without Enterotype.
+  ent <- phyloseq::subset_samples(enterotype, !is.na(Enterotype))
+  dm <- phyloseq::distance(ent, method = "bray")
 
-# The outcome could be a single variable or multiple variables (such as
-# multidimensional omics data).
+  ###########################################################
+  ###########################################################
+  ## (Eg 1) Basic multivariate test:
+  res_unadjusted <-
+    WdS.test(dm = dm,
+             group = Enterotype,
+             data = ent,
+             nrep = 1) # Change nrep to 999 or more for a real analysis
+  ### Data parameter can be given as a data frame, list, or phyloseq object.
 
-## This is an example of outcome with a single variable:
-dm <- dist(mtcars$mpg, method="euclidean")
+  ###########################################################
+  ###########################################################
+  ## (Eg 2) Stratified permutation example:
+  ### This restricts permutations within sequencing technology.
+  ### Stratification does not change statistics, estimate, or goodness-of-fit.
+  res_stratified <-
+    WdS.test(dm = dm,
+             group = Enterotype,
+             strata = SeqTech,
+             data = phyloseq::sample_data(ent),
+             nrep = 1)
 
-## This is an example of outcome with multiple variables:
-dm <- dist(mtcars[1:3], method="euclidean")
+  ###########################################################
+  ###########################################################
+  ## (Eg 3) Covariate adjustment by a categorical covariate (sequencing technology):
+  res_adj_categorical <-
+    WdS.test(dm = dm,
+             group = Enterotype,
+             adjustment = ~SeqTech,
+             data = ent,
+             goodness = "all", ## goodness = "none"
+             nrep = 1)
 
-# Grouping/independent variable. You could use multiple variables here too.
-f <- factor(mtcars$gear)
+  ### Goodness-of-fit pseudo-R^2 components:
+  #### By default, goodness.of.fit reports the R^2 value of the tested
+  ####    group's for an unadjusted test and semi-partial R^2 of the tested
+  ####    group for an adjusted test.
+  #### Use goodness = "all" to request all available components, or
+  ####    goodness = "none" to skip the computations.
+  res_adj_categorical$goodness.components
 
-# Basic multivariate test example ###########
-#############################################
-WdS.test(dm=dm, f=f)
+  ### Get distance diagnostics
+  res_adj_categorical$distance.diagnostics
 
-# Stratified example ########################
-#############################################
-strata <- factor(mtcars$vs)
-WdS.test(dm=dm, f=f, strata=strata)
+  ###########################################################
+  ###########################################################
+  ## (Eg 4) Covariate adjustment by a continuous covariate (age):
+  ### In the enterotype dataset, age has many missing values so this example
+  ### builds a matching age-complete distance matrix before using Age in the
+  ### adjustment formula.
+  ent_age <-
+    phyloseq::subset_samples(enterotype,
+                             !is.na(Enterotype) & !is.na(Age))
+  dm_age <- phyloseq::distance(ent_age, method = "bray")
 
-# Covariate adjustment/elimination examples #
-#############################################
-## Right-hand side adjustment formula to specify adjustment covariates.
-formula <- ~ wt + as.factor(am)
+  res_adj_continuous <-
+    WdS.test(dm = dm_age,
+             group = Enterotype,
+             adjustment = ~Age,
+             data = ent_age,
+             nrep = 1)
 
-## Adjustment example 1: pass unadjusted `dm` and formula to WdS.test()
-WdS.test(dm=dm, f=f, formula=formula, formula_data=mtcars) ## Perform adjusted test
+  ###########################################################
+  ###########################################################
+  ## (Eg 5) Covariate adjustment by building distance matrix outside the
+  ## function, then pass dm to WdS.test():
+  ### First build adjusted dm
+  a.dm <-
+    a.dist(dm = dm,
+           adjustment = ~SeqTech,
+           data = phyloseq::sample_data(ent))
 
-## Adjustment example 2: Create the adjusted distance matrix `a.dm` outside
-## the function
-a.dm <- a.dist(dm=dm, formula=formula, formula_data=mtcars)
-WdS.test(dm=a.dm, f=f) ## Perform adjusted test with `a.dm`
+  ### Then use adjusted dm in testing
+  res_eg5 <-
+    WdS.test(dm = a.dm,
+             group = Enterotype,
+             data = phyloseq::sample_data(ent),
+             nrep = 1)
 
+  ### You can get the diagnostics of adjusted dm
+  # attr(a.dm, "distance.diagnostics")
+
+  print(res_unadjusted)
+  print(res_stratified)
+  print(res_adj_categorical)
+  print(res_adj_continuous)
+}
+
+# goodness and diagnostic controls are placed after ... so older calls that pass
+# a.dist() arguments through ... keep their positional behavior; users should
+# pass these newer controls by name.
+}
+\references{
+Hamidi Bashir, Wallace K, Vasu C, Alekseyenko AV. The
+\eqn{\mathnormal{W}_d^*}-test: robust distance-based multivariate analysis
+of variance. \emph{Microbiome}. 2019;7:51.
 }
 \seealso{
-\code{\link{generic.distance.permutation.test}}, \code{\link{Tw2.test}},
-         \code{\link{a.dist}}, \code{\link{dist.goodness.of.fit}}
+\code{\link{WdS}}, \code{\link{generic.distance.permutation.test}},
+  \code{\link{Tw2.test}}, \code{\link{a.dist}},
+  \code{\link{dist.goodness.of.fit}}
 }

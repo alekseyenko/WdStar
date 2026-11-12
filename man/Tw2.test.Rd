@@ -2,12 +2,12 @@
 % Please edit documentation in R/test_utils.R
 \name{Tw2.test}
 \alias{Tw2.test}
-\title{Conducts a Tw2 distance-based permutation test for k-group differences}
+\title{Conduct a Tw2 Distance-Based Permutation Test}
 \usage{
 Tw2.test(dm, f, nrep = 999)
 }
 \arguments{
-\item{dm}{A distance metric (any arbitrary distance or dissimilarity metric)}
+\item{dm}{A distance matrix (any arbitrary distance or dissimilarity metric).}
 
 \item{f}{A factor variable representing the groups.}
 
@@ -22,12 +22,26 @@ A list containing:
 }
 }
 \description{
-This function is a specialized version of the \code{\link{generic.distance.permutation.test}},
-specifically designed to use the Tw2 test statistic for k-group comparison.
+This function is a specialized version of
+\code{\link{generic.distance.permutation.test}} that uses the
+\code{\link{Tw2}} statistic for a two-group comparison.
 }
 \examples{
-# TODO: Add examples
+if (requireNamespace("phyloseq", quietly = TRUE)) {
+  data("enterotype", package = "phyloseq")
+  ent <- phyloseq::subset_samples(enterotype, !is.na(Enterotype))
+  dm <- phyloseq::distance(ent, method = "bray")
+  meta <- data.frame(phyloseq::sample_data(ent))
+  f <- factor(meta$Enterotype)
+
+  keep <- f \%in\% c("1", "2")
+  dm_12 <- as.dist(as.matrix(dm)[keep, keep])
+  f_12 <- droplevels(f[keep])
+
+  Tw2.test(dm_12, f_12, nrep = 9)
+}
 }
 \seealso{
-\code{\link{WdS.test}}, \code{\link{generic.distance.permutation.test}}
+\code{\link{Tw2}}, \code{\link{WdS.test}},
+  \code{\link{generic.distance.permutation.test}}
 }

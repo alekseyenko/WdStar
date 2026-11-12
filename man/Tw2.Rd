@@ -15,28 +15,37 @@ Tw2(dm, f)
 The calculated Tw2 statistic.
 }
 \description{
-This function calculates the Tw2 statistic to compare means of k populations
-with potentially unequal observations. It is suitable for microbiome data
-and utilizes permutation testing for significance estimation.
+This function calculates the \eqn{T_w^2} statistic to compare two groups
+with potentially unequal sample sizes. It is suitable for microbiome and
+other multivariate distance data.
 }
 \details{
 The function first checks if the factor variable has exactly two levels.
-The Tw2 statistic is a modification of Hotelling's T-square statistic
-adapted for heteroscedasticity and specifically suitable for microbiome data.
-It calculates the sum of squares within each group and then computes the
-Tw2 statistic based on these sum of squares.
+The \eqn{T_w^2} statistic is a modification of Hotelling's T-square statistic
+adapted for heteroscedasticity in multivariate distance data. This function
+returns the observed statistic only; use \code{\link{Tw2.test}} for
+permutation-based significance testing.
 }
 \examples{
-\dontrun{
-# Generate a synthetic distance matrix and a factor variable
-dm <- matrix(runif(100), nrow = 10)
-f <- factor(rep(1:2, each = 5))
-# Calculate the Tw2 statistic
-Tw2_stat <- Tw2(dm, f)
+if (requireNamespace("phyloseq", quietly = TRUE)) {
+  data("enterotype", package = "phyloseq")
+  ent <- phyloseq::subset_samples(enterotype, !is.na(Enterotype))
+  dm <- phyloseq::distance(ent, method = "bray")
+  meta <- data.frame(phyloseq::sample_data(ent))
+  f <- factor(meta$Enterotype)
+
+  keep <- f \%in\% c("1", "2")
+  dm_12 <- as.dist(as.matrix(dm)[keep, keep])
+  f_12 <- droplevels(f[keep])
+
+  Tw2(dm_12, f_12)
 }
 
 }
 \references{
-Hamidi, Bashir, et al. "$ W_ {d}^{*} $-test: robust distance-based
-multivariate analysis of variance." Microbiome 7.1 (2019): 1-9.
+Alekseyenko AV. Multivariate Welch t-test on distances. \emph{Bioinformatics}.
+2016;32(23):3552-3558. doi:10.1093/bioinformatics/btw524
+}
+\seealso{
+\code{\link{Tw2.test}}
 }

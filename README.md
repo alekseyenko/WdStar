@@ -1,13 +1,15 @@
 
 
-# $W_d^*$: distance-based multivariate analysis of variance for multivariate data
+# $W_d^*$: Distance-Based Multivariate Analysis of Variance for Multivariate Data
 
 ## Introduction 
 
-`WdStar` is an R package for $W_d^*$, a method for multivariate analysis of variance based on Welch's MANOVA designed to address challenges of existing methods including PERMANOVA.
-- Are you using PERMANOVA and concerned about how heteroscedasticity and unbalanced sample sizes may affect your analyses? 
+`WdStar` is an R package for $W_d^*$, a method for distance-based multivariate
+ANOVA designed to address challenges of existing methods including PERMANOVA.
+- Are you using PERMANOVA and concerned about how heteroscedasticity and unbalanced sample sizes may affect your analyses?
 - Have you ever questioned the reliability of community-wide microbiome analysis results?
 - Are you looking for a global test for your multivariate dataset?
+- Do you need to remove the effects of confounders and technical variables in your data?
 
 >**$W_d^*$ addresses these concerns and is**
 >- robust to heteroscedasticity; 
@@ -18,9 +20,9 @@
 
 
 ## Peer-Reviewed Publications on the $W_d^*$-test Family  
-**Preprint: Covariate-adjusted $W_d^*$ for robust distance-based multivariate analysis for omics data**  
-- Hamidi B, Fanning L, Wallace K, & Alekseyenko AV. *Bioinformatics.* 2026. DOI forthcoming.
-- [Code repository](https://github.com/alekseyenko/WdStar/tree/master/publications/Hamidi%20et%20al.%20Bioinformatics%20(2026))
+**Preprint: Covariate-adjusted multivariate analysis for omics data**  
+- Hamidi B, Fanning L, Wallace K, & Alekseyenko AV. *DOI forthcoming*
+- [Code repository](https://github.com/alekseyenko/WdStar/tree/master/publications/))
 
 
 **$W_d^*$-test: robust distance-based multivariate analysis of variance**  
@@ -32,6 +34,7 @@
 - [Alekseyenko AV. Multivariate Welch t-test on distances. *Bioinformatics*. 2016.](https://doi.org/10.1093/bioinformatics/btw524) 
 - [Code repository](https://github.com/alekseyenko/Tw2)
 
+
 ## Installation  
 Source installation of the `WdStar` R package is available directly from GitHub using `remotes` for R 3.6 or later:
 ```R
@@ -41,57 +44,74 @@ library(WdStar)
 packageVersion("WdStar")
 ```
 
-Until a CRAN release is available, install `WdStar` from GitHub as shown above.
-
+Alternatively, the [latest released packaged source archives can be downloaded](https://github.com/bashirhamidi/WdStar/releases)
+and installed using:
+```R
+install.packages("[downloads directory]/WdStar_2.5.4.tar.gz", repos = NULL, type = "source")
+```
 
 ## Quick Start  
 
-For detailed and complex examples please refer to [our publication repositories](https://github.com/alekseyenko?tab=readme-ov-file#peer-reviewed-publications-on-the-w_d-test-family), which contain Markdown files with application datasets and code.
+For detailed and complex examples please refer to [our publication repositories](https://github.com/alekseyenko/WdStar/tree/master/publications), which contain Markdown files with application datasets and code.
 
 
-The following is a simple example using the `mtcars` dataset to assess the effect of `gear` on `mpg`, `cyl`, and `disp` (first three variables of the dataset):   
+The following examples use the `phyloseq::enterotype` microbiome dataset to test whether community composition differs by enterotype using Bray-Curtis distances. 
 
 ```R
-# Load dataset
-data(mtcars)
+## Load packages and example microbiome data
+library(WdStar)
+library(phyloseq) # we use the enterotype dataset for demonstration purposes
+data("enterotype", package = "phyloseq")
 
-# The outcome could be a single variable or multiple variables (such as multidimensional omics data).  
+## Use all samples with observed Enterotype
+ent <- phyloseq::subset_samples(enterotype, !is.na(Enterotype))
+dm <- phyloseq::distance(ent, method = "bray")
 
-### This is an example of outcome with a single variable (`mpg`):
-dm <- dist(mtcars$mpg, method="euclidean")
+###########################################################
+###########################################################
+## (Eg 1) Basic multivariate test:
+(res_unadjusted <- 
+      WdS.test(dm = dm,
+               group = Enterotype,
+               data = ent))
+### Data parameter can be given as a data frame, list, or phyloseq object.
 
-### This is an example of outcome with multiple variables (`mpg`, `cyl`, and `disp`):
-dm <- dist(mtcars[1:3], method="euclidean") 
+###########################################################
+###########################################################
+## (Eg 2) Stratified permutation example:
+### This restricts permutations within sequencing technology.
+### Stratification does not change statistics, estimate, or goodness-of-fit.
+(res_stratified <- 
+      WdS.test(dm = dm,
+               group = Enterotype,
+               strata = SeqTech,
+               data = ent))
 
-# Grouping/independent variable. You could use multiple variables here too.
-f <- factor(mtcars$gear)
+###########################################################
+###########################################################
+## (Eg 3) Covariate adjustment by a categorical covariate (sequencing technology):
+(res_adjusted <-
+      WdS.test(dm = dm,
+               group = Enterotype,
+               adjustment = ~SeqTech,
+               data = ent,
+               goodness = "all", ## goodness = "none"
+               ))
 
-# Basic multivariate test example ###########
-#############################################
-WdS.test(dm=dm, f=f)
 
-# Stratified example ########################
-#############################################
-strata <- factor(mtcars$vs)
-WdS.test(dm=dm, f=f, strata=strata)
+## Goodness-of-fit pseudo-R^2 components:
+#### By default, goodness.of.fit reports the R^2 value of the tested group's for 
+####    an unadjusted test and semi-partial R^2 of the tested group for an adjusted test.
 
-# Covariate adjustment/elimination examples #
-#############################################
-## Right-hand side adjustment formula to specify adjustment covariates. 
-formula <- ~ wt + as.factor(am) 
+#### Use goodness = "all" to request all available components, or goodness = "none"
+####    to skip the computations.
+res_adjusted$goodness.components
 
-## Adjustment example 1: pass unadjusted `dm` and formula to WdS.test()
-WdS.test(dm=dm, f=f, formula=formula, formula_data=mtcars) ## Perform adjusted test
 
-## Note that the output includes goodness.of.fit computed from raw and adjusted  
-##  distances, which can be used to assess the impact of adjustment on the data.  
-
-## Adjustment example 2: Create the adjusted distance matrix `a.dm` outside the function
-a.dm <- a.dist(dm=dm, formula=formula, formula_data=mtcars) 
-WdS.test(dm=a.dm, f=f) ## Perform adjusted test with `a.dm`
-
-## Goodness of fit can also be computed from raw and adjusted distances directly
-dist.goodness.of.fit(dm=dm, adjusted_dm=a.dm)
+## Get distance diagnostics
+#### Eigenvalue and tolerance diagnostics for residual distance matrices are stored in the
+####    distance.diagnostics slot of the WdS.test output object.
+res_adjusted$distance.diagnostics
 ```
 
 Further examples are provided in the package documentation and may be accessed by running the following commands:

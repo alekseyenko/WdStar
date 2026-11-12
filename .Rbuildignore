@@ -1,11 +1,40 @@
+# Ignore files, subdirectories, and their contents 
+
+## ^NEWS\.md$ ## Commented out # = not ignored
+## ^README\.md$ ##
+
+# LICENSE.md is excluded from the build, as CRAN prohibits it  
+^LICENSE\.md$
+
+^\.\.Rcheck/$
+^\.*\.Rcheck$ 
+
+^\.RData$
 ^renv$
 ^renv\.lock$
-^.*\.Rproj$
+^\.Rhistory$
+^\.*\.Rproj$
 ^\.Rproj\.user$
-^LICENSE\.md$
+^\.Ruserdata$
+^WdStar\.Rproj$
+
+^WdStar*\.tar\.gz$
+^WdStar_*\.tar\.gz$
+
 ^\.positai$
+^\.posit$
+^\.posit/assistant$
+^\.git$
+^\.gitattributes$
 ^\.github$
+^\.gitignore$
+
 ^\.DS_Store$
+(^|/)\.DS_Store$
 ^tests/\.DS_Store$
+
+^docs$
 ^publications$
 ^shinyApp$
+^state$
+
